@@ -18,7 +18,7 @@ class BottomPanel extends StatelessWidget {
             height: 100,
             child: TabBarView(children: [
               ToolsPanel(),
-              LayersPanel(),
+              // LayersPanel(),
             ]),
           )
         ],

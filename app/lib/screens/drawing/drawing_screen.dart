@@ -15,9 +15,9 @@ class DrawingScreen extends StatelessWidget {
       child: const Column(
         children: [
           ColorPicker(),
-          Expanded(
-            child: DrawingCanvas(),
-          ),
+          // Expanded(
+          //   child: DrawingCanvas(),
+          // ),
           BottomPanel(),
         ],
       ),

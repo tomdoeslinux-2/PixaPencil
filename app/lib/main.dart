@@ -1,4 +1,5 @@
 import 'package:app/screens/drawing/drawing_screen.dart';
+import 'package:app/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -16,8 +17,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        fontFamily: 'Figtree',
+        textTheme: const TextTheme(
+          titleMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          )
+        )
       ),
-      home: const MyHomePage(title: 'PixaPencil'),
+      home: const HomeScreen(),
     );
   }
 }
