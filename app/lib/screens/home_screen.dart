@@ -1,5 +1,6 @@
 import 'package:app/widgets/marquee.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -79,6 +80,115 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   }
 }
 
+class CreationCardBottomSheet extends StatelessWidget {
+  final Creation creation;
+
+  const CreationCardBottomSheet({super.key, required this.creation});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      (
+        icon: const SvgIcon('assets/icons/select_check_box_m3.svg'),
+        text: 'Select creations'
+      ),
+      (
+        icon: const Icon(Icons.favorite_outline),
+        text: 'Add to favorites',
+      ),
+      (
+        icon: const Icon(Icons.create_new_folder_outlined),
+        text: 'Add to collection'
+      ),
+      (
+        icon: const SvgIcon('assets/icons/content_copy_m3.svg'),
+        text: 'Make a copy',
+      ),
+      (
+        icon: const Icon(Icons.info_outline),
+        text: 'View info',
+      ),
+      (
+        icon: const SvgIcon('assets/icons/delete_m3.svg'),
+        text: 'Delete',
+      ),
+    ];
+
+    return SafeArea(
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildListHeader(context),
+            for (var item in items)
+              _buildListTile(context, item.icon, item.text),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: 64,
+      decoration: const BoxDecoration(
+          border: Border(
+        bottom: BorderSide(
+          color: Color(0xFFE8E8E8),
+        ),
+      )),
+      child: Row(
+        spacing: 18,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: Image.asset(
+              creation.imageName,
+              width: 24,
+              height: 24,
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.none,
+            ),
+          ),
+          Text(
+            creation.title,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildListTile(BuildContext context, Widget icon, String text) {
+    return SizedBox(
+      height: 56,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {},
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              spacing: 18,
+              children: [
+                icon,
+                Text(
+                  text,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class CreationCard extends StatelessWidget {
   final Creation creation;
 
@@ -97,58 +207,97 @@ class CreationCard extends StatelessWidget {
           color: const Color(0xFFe8e8e8),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Stack(
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8),
-            ),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Image.asset(
-                creation.imageName,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.none,
-              ),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildImage(),
+              _buildDetails(context),
+            ],
           ),
-          SizedBox(
-            height: 66,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12, right: 3),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // prevent column from overflowing row, and pushing the other row item outta bounds
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 4,
-                      children: [
-                        Marquee(
-                          text: creation.title,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Text(
-                          getRelativeTime(creation.lastEdited),
-                          style: Theme.of(context).textTheme.bodySmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onLongPress: () {
+                  HapticFeedback.lightImpact();
+                  showModalBottomSheet(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
                     ),
-                  ),
-                  const FavoriteButton(),
-                ],
+                    backgroundColor: Colors.white,
+                    context: context,
+                    builder: (ctx) =>
+                        CreationCardBottomSheet(creation: creation),
+                  );
+                },
+                onTap: () {},
+                splashColor: const Color(0xFF6495ED).withValues(alpha: 0.1),
+                highlightColor: const Color(0xFF6495ED).withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
           ),
+          const Positioned(bottom: 9, right: 3, child: FavoriteButton()),
         ],
       ),
+    );
+  }
+
+  Widget _buildImage() {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        topRight: Radius.circular(8),
+      ),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Image.asset(
+          creation.imageName,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetails(BuildContext context) {
+    return SizedBox(
+      height: 66,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 12, right: 3),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(child: _buildTitle(context)),
+            IconButton(onPressed: () {}, icon: const SizedBox.shrink()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 4,
+      children: [
+        Marquee(
+          text: creation.title,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        Text(
+          getRelativeTime(creation.lastEdited),
+          style: Theme.of(context).textTheme.bodySmall,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 }
@@ -180,23 +329,23 @@ class CreationsGrid extends StatelessWidget {
 class SvgIcon extends StatelessWidget {
   final String name;
   final Color? color;
-  final double size;
+  final double? size;
 
   const SvgIcon(
     this.name, {
     super.key,
     this.color,
-    this.size = 24,
+    this.size,
   });
 
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
       name,
-      width: size,
-      height: size,
+      width: size ?? IconTheme.of(context).size,
+      height: size ?? IconTheme.of(context).size,
       colorFilter: ColorFilter.mode(
-        color ?? Theme.of(context).iconTheme.color!,
+        color ?? IconTheme.of(context).color!,
         BlendMode.srcIn,
       ),
     );
@@ -285,47 +434,47 @@ class HomeScreen extends StatelessWidget {
       ),
       floatingActionButton: const DrawFAB(),
       // update to new icons
-      bottomNavigationBar: NavigationBar(
-        indicatorColor: Colors.transparent,
-        backgroundColor: Colors.white,
-        destinations: const [
-          NavigationDestination(
-            icon: SvgIcon(
-              'assets/icons/home_outlined_m3.svg',
-              size: 32,
-            ),
-            selectedIcon: SvgIcon(
-              'assets/icons/home_m3.svg',
-              size: 32,
-              color: Color(0xFF6495ED),
-            ),
-            label: 'Home',
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return const TextStyle(color: Color(0xFF6495ED));
+              } else {
+                return const TextStyle(color: Color(0xFF797979));
+              }
+            },
           ),
-          NavigationDestination(
-            icon: Icon(
-              Icons.folder_outlined,
-              size: 32,
-            ),
-            selectedIcon: Icon(
-              Icons.folder,
-              size: 32,
-              color: Color(0xFF6495ED),
-            ),
-            label: 'Collections',
+          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return const IconThemeData(color: Color(0xFF6495ED), size: 32);
+              }
+              return const IconThemeData(color: Color(0xFF797979), size: 32);
+            },
           ),
-          NavigationDestination(
-            icon: SvgIcon(
-              'assets/icons/explore_outlined_m3.svg',
-              size: 32,
+        ),
+        child: NavigationBar(
+          indicatorColor: Colors.transparent,
+          backgroundColor: Colors.white,
+          destinations: const [
+            NavigationDestination(
+              icon: SvgIcon('assets/icons/home_outlined_m3.svg'),
+              selectedIcon: SvgIcon('assets/icons/home_m3.svg'),
+              label: 'Home',
             ),
-            selectedIcon: SvgIcon(
-              'assets/icons/explore_m3.svg',
-              size: 32,
-              color: Color(0xFF6495ED),
+            NavigationDestination(
+              icon: Icon(Icons.folder_outlined),
+              selectedIcon: Icon(Icons.folder),
+              label: 'Collections',
             ),
-            label: 'Explore',
-          ),
-        ],
+            NavigationDestination(
+              icon: SvgIcon('assets/icons/explore_outlined_m3.svg'),
+              selectedIcon: SvgIcon('assets/icons/explore_m3.svg'),
+              label: 'Explore',
+            ),
+          ],
+        ),
       ),
       body: Container(
         color: const Color(0xFFF8F8F8),
