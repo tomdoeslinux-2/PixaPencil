@@ -413,12 +413,107 @@ class DrawFAB extends StatelessWidget {
   }
 }
 
+class PxpNavigationBar extends StatefulWidget {
+  const PxpNavigationBar({super.key});
+
+  @override
+  State<PxpNavigationBar> createState() => _PxpNavigationBarState();
+}
+
+class _PxpNavigationBarState extends State<PxpNavigationBar> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        color: Colors.white,
+        height: 84,
+        child: Material(
+          color: Colors.transparent,
+          child: Row(
+            children: [
+              _buildNavBarItem(
+                index: 0,
+                icon: const SvgIcon('assets/icons/home_outlined_m3.svg'),
+                selectedIcon: const SvgIcon('assets/icons/home_m3.svg'),
+                label: 'Home',
+              ),
+              _buildNavBarItem(
+                index: 1,
+                icon: const Icon(Icons.folder_outlined),
+                selectedIcon: const Icon(Icons.folder),
+                label: 'Collections',
+              ),
+              _buildNavBarItem(
+                index: 2,
+                icon: const SvgIcon('assets/icons/explore_outlined_m3.svg'),
+                selectedIcon: const SvgIcon('assets/icons/explore_m3.svg'),
+                label: 'Explore',
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavBarItem({
+    required int index,
+    required Widget icon,
+    required Widget selectedIcon,
+    required String label,
+  }) {
+    final isSelected = index == _selectedIndex;
+    final color =
+        isSelected ? const Color(0xFF6495ED) : const Color(0xFF797979);
+
+    return Expanded(
+      child: Tooltip(
+        message: label,
+        verticalOffset: 37,
+        preferBelow: false,
+        child: InkResponse(
+          splashColor: const Color(0xFF6495ED).withValues(alpha: 0.2),
+          highlightColor: const Color(0xFF6495ED).withValues(alpha: 0.03),
+          radius: 30,
+          onTap: () {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          child: Container(
+            height: double.infinity,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 4,
+              children: [
+                IconTheme(
+                  data: IconThemeData(color: color, size: 32),
+                  child: isSelected ? selectedIcon : icon,
+                ),
+                Text(
+                  label,
+                  style: TextStyle(color: color),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
         actions: [
@@ -433,49 +528,7 @@ class HomeScreen extends StatelessWidget {
         toolbarHeight: 64,
       ),
       floatingActionButton: const DrawFAB(),
-      // update to new icons
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
-            (Set<WidgetState> states) {
-              if (states.contains(WidgetState.selected)) {
-                return const TextStyle(color: Color(0xFF6495ED));
-              } else {
-                return const TextStyle(color: Color(0xFF797979));
-              }
-            },
-          ),
-          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>(
-            (Set<WidgetState> states) {
-              if (states.contains(WidgetState.selected)) {
-                return const IconThemeData(color: Color(0xFF6495ED), size: 32);
-              }
-              return const IconThemeData(color: Color(0xFF797979), size: 32);
-            },
-          ),
-        ),
-        child: NavigationBar(
-          indicatorColor: Colors.transparent,
-          backgroundColor: Colors.white,
-          destinations: const [
-            NavigationDestination(
-              icon: SvgIcon('assets/icons/home_outlined_m3.svg'),
-              selectedIcon: SvgIcon('assets/icons/home_m3.svg'),
-              label: 'Home',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.folder_outlined),
-              selectedIcon: Icon(Icons.folder),
-              label: 'Collections',
-            ),
-            NavigationDestination(
-              icon: SvgIcon('assets/icons/explore_outlined_m3.svg'),
-              selectedIcon: SvgIcon('assets/icons/explore_m3.svg'),
-              label: 'Explore',
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const PxpNavigationBar(),
       body: Container(
         color: const Color(0xFFF8F8F8),
         height: double.infinity,
