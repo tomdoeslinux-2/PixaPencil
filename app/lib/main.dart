@@ -1,5 +1,5 @@
-import 'package:app/screens/drawing/drawing_screen.dart';
-import 'package:app/screens/home_screen.dart';
+import 'package:app/screens/drawing2/drawing_screen.dart';
+import 'package:app/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
           )
         )
       ),
-      home: const HomeScreen(),
+      home: const DrawingScreen(),
     );
   }
 }

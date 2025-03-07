@@ -77,6 +77,13 @@ flutter:
     - assets/icons/select_check_box_m3.svg
     - assets/icons/content_copy_m3.svg
     - assets/icons/delete_m3.svg
+    - assets/icons/redo_m3.svg
+    - assets/icons/undo_m3.svg
+    - assets/icons/zoom_in_m3.svg
+    - assets/icons/zoom_out_m3.svg
+    - assets/icons/edit_m3.svg
+    - assets/icons/eraser_m3.svg
+    - assets/icons/colorize_m3.svg
 
   fonts:
     - family: Figtree
