@@ -1,5 +1,4 @@
 import 'package:graphics/graphics.dart';
-import 'package:graphics/src/core/region.dart';
 import 'package:graphics/src/utils.dart';
 import 'package:test/test.dart';
 import '../../utils.dart';
@@ -34,15 +33,14 @@ void main() {
       layerManager.addLayer(layerB);
 
       final outputBitmap = layerGraph.process(
-        GRegion.rect(
-          GRect(
-            x: 0,
-            y: 0,
-            width: 22,
-            height: 22,
-          ),
+        GRect(
+          x: 0,
+          y: 0,
+          width: 22,
+          height: 22,
         ),
       );
+      saveBitmapToLocalDir(outputBitmap, "output.png");
       final expectedBitmap =
           await loadBitmapFromImage("$testAssetPath/layers_a_b.png", 22, 22);
 
@@ -63,13 +61,11 @@ void main() {
       layerManager.addLayer(layerC, position: 1);
 
       final outputBitmap = layerGraph.process(
-        GRegion.rect(
-          GRect(
-            x: 0,
-            y: 0,
-            width: 22,
-            height: 22,
-          ),
+        GRect(
+          x: 0,
+          y: 0,
+          width: 22,
+          height: 22,
         ),
       );
       final expectedBitmap =
@@ -84,20 +80,6 @@ void main() {
       expect(layerManager.layers[3].rootNode.id, equals(layerB.id));
     });
 
-    test("ok", () async {
-      final bitmap = GBitmap(200, 200, config: GBitmapConfig.rgba);
-      bitmap.fillColor(GColors.green);
-
-      final rootNode = SourceNode(source: bitmap);
-      final nodeGraph = NodeGraph(rootNode);
-
-      final layer2Bitmap = GBitmap(200, 200, config: GBitmapConfig.rgba);
-      drawLine(layer2Bitmap, (x: 0, y: 0), (x: 100, y: 100), GColors.black);
-
-      final layerManager = LayerManager(nodeGraph);
-      layerManager.addLayer(SourceNode(source: layer2Bitmap));
-    });
-
     test("insert layer c at position 2 in layers a b", () async {
       final layerGraph = NodeGraph(layerBackground);
 
@@ -107,13 +89,11 @@ void main() {
       layerManager.addLayer(layerC, position: 2);
 
       final outputBitmap = layerGraph.process(
-        GRegion.rect(
-          GRect(
-            x: 0,
-            y: 0,
-            width: 22,
-            height: 22,
-          ),
+        GRect(
+          x: 0,
+          y: 0,
+          width: 22,
+          height: 22,
         ),
       );
       final expectedBitmap =
@@ -138,13 +118,11 @@ void main() {
       layerManager.removeLayer(2);
 
       final outputBitmap = layerGraph.process(
-        GRegion.rect(
-          GRect(
-            x: 0,
-            y: 0,
-            width: 22,
-            height: 22,
-          ),
+        GRect(
+          x: 0,
+          y: 0,
+          width: 22,
+          height: 22,
         ),
       );
       final expectedBitmap =
@@ -166,13 +144,11 @@ void main() {
       layerManager.removeLayer(1);
 
       final outputBitmap = layerGraph.process(
-        GRegion.rect(
-          GRect(
-            x: 0,
-            y: 0,
-            width: 22,
-            height: 22,
-          ),
+        GRect(
+          x: 0,
+          y: 0,
+          width: 22,
+          height: 22,
         ),
       );
       final expectedBitmap =
@@ -195,13 +171,11 @@ void main() {
       layerManager.removeLayer(2);
 
       final outputBitmap = layerGraph.process(
-        GRegion.rect(
-          GRect(
-            x: 0,
-            y: 0,
-            width: 22,
-            height: 22,
-          ),
+        GRect(
+          x: 0,
+          y: 0,
+          width: 22,
+          height: 22,
         ),
       );
       final expectedBitmap =
@@ -228,13 +202,11 @@ void main() {
 
         layerManager.addLayer(layerA);
         layerGraph.process(
-          GRegion.rect(
-            GRect(
-              x: 0,
-              y: 0,
-              width: layerBg.source.width,
-              height: layerBg.source.height,
-            ),
+          GRect(
+            x: 0,
+            y: 0,
+            width: layerBg.source.width,
+            height: layerBg.source.height,
           ),
         );
       }, iterations: 200);

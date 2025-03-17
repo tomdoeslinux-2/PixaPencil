@@ -1,12 +1,7 @@
-import "package:graphics/src/core/region.dart";
-import "package:graphics/src/utils.dart";
-
 import "../core/bitmap.dart";
 import "../core/rect.dart";
 
 abstract class Node {
-  final Map<GRect, GBitmap> _cache = {};
-
   static var _idCounter = 0;
   final int id;
 
@@ -40,20 +35,11 @@ abstract class Node {
 
   GRect get boundingBox;
 
-  GBitmap operation(GRegion roi);
+  GBitmap operation(GRect? roi);
 
-  // todo not sure if roi should be nulalble
-  GBitmap process(GRegion roi) {
-    // final adjustedRoi = GRect.intersection(roi!, boundingBox);
+  GBitmap process(GRect? roi) {
+    final bitmap = operation(roi);
 
-    if (!_cache.containsKey(roi)) {
-      final bitmap = operation(roi);
-
-      _cache[boundingBox] = bitmap.crop(boundingBox);
-
-      return bitmap;
-    } else {
-      return _cache[roi]!;
-    }
+    return bitmap;
   }
 }

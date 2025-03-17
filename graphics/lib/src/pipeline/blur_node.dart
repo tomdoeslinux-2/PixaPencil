@@ -1,5 +1,3 @@
-import 'package:graphics/src/core/region.dart';
-
 import '../algorithms/gaussian_blur.dart';
 import '../core/bitmap.dart';
 import '../core/rect.dart';
@@ -11,7 +9,7 @@ class BlurNode extends Node {
   BlurNode({super.inputNode, required this.radius});
 
   @override
-  GBitmap operation(GRegion roi) {
+  GBitmap operation(GRect? roi) {
     final inputBitmap = inputNode!.process(roi);
 
     return gaussianBlur(inputBitmap, radius);

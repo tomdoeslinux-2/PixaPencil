@@ -1,10 +1,5 @@
 import 'package:graphics/graphics.dart';
-import 'package:graphics/src/core/bitmap.dart';
-import 'package:graphics/src/core/rect.dart';
 import 'package:graphics/src/pipeline/ellipse_node.dart';
-import 'package:graphics/src/pipeline/layer_manager.dart';
-import 'package:graphics/src/pipeline/node_graph.dart';
-import 'package:graphics/src/pipeline/source_node.dart';
 import 'package:graphics/src/utils.dart';
 
 import '../../utils.dart';
@@ -50,7 +45,7 @@ void main() async {
   saveBitmapToLocalDir(nodeGraph.process(GRect(x: 0, y: 0, width: 500, height: 500)), "output.png");
   exportGraphToPNG(nodeGraph.rootNode, "output_graph");
 
-  // benchmark(() {
-  //   nodeGraph.process(GRect(x: 0, y: 0, width: 500, height: 500));
-  // }, iterations: 1);
+  benchmark(() {
+    nodeGraph.process(GRect(x: 0, y: 0, width: 500, height: 500));
+  }, iterations: 1);
 }

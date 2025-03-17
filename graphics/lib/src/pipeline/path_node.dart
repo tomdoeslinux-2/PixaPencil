@@ -1,5 +1,3 @@
-import 'package:graphics/src/core/region.dart';
-
 import '../algorithms/line.dart';
 import '../core/bitmap.dart';
 import '../core/color.dart';
@@ -18,7 +16,7 @@ class PathNode extends Node {
   }
 
   @override
-  GBitmap operation(GRegion roi) {
+  GBitmap operation(GRect? roi) {
     final inputBitmap = inputNode!.process(roi);
 
     GPoint? prevPoint;

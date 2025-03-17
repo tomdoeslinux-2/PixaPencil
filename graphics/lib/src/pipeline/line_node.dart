@@ -3,7 +3,6 @@ import 'package:graphics/src/core/bitmap.dart';
 import 'package:graphics/src/core/color.dart';
 import 'package:graphics/src/core/point.dart';
 import 'package:graphics/src/core/rect.dart';
-import 'package:graphics/src/core/region.dart';
 import 'package:graphics/src/pipeline/node.dart';
 
 class LineNode extends Node {
@@ -19,7 +18,7 @@ class LineNode extends Node {
   });
 
   @override
-  GBitmap operation(GRegion roi) {
+  GBitmap operation(GRect? roi) {
     final inputBitmap = inputNode!.process(roi);
 
     drawLine(inputBitmap, from, to, color);
