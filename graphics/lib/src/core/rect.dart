@@ -1,4 +1,4 @@
-import 'package:graphics/src/core/point.dart';
+import '../../graphics.dart';
 
 class GRect {
   final int x, y, width, height;

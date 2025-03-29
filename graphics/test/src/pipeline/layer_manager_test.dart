@@ -24,22 +24,23 @@ void main() {
             await loadBitmapFromImage("$testAssetPath/layer_c.png", 22, 22));
   });
 
-  group("Layer tests", () {
+  group("Layer rendering tests", () {
     test("layers a b added matches expected output", () async {
-      final layerGraph = NodeGraph(layerBackground);
-
-      final layerManager = LayerManager(layerGraph);
-      layerManager.addLayer(layerA);
-      layerManager.addLayer(layerB);
-
-      final outputBitmap = layerGraph.process(
-        GRect(
+      final layerGraph = RenderingEngine(
+        layerBackground,
+        outputRoi: GRect(
           x: 0,
           y: 0,
           width: 22,
           height: 22,
         ),
       );
+
+      final layerManager = LayerManager(layerGraph);
+      layerManager.addLayer(layerA);
+      layerManager.addLayer(layerB);
+
+      final outputBitmap = layerGraph.render();
       saveBitmapToLocalDir(outputBitmap, "output.png");
       final expectedBitmap =
           await loadBitmapFromImage("$testAssetPath/layers_a_b.png", 22, 22);
@@ -53,21 +54,22 @@ void main() {
     });
 
     test("insert layer c at position 1 in layers a b", () async {
-      final layerGraph = NodeGraph(layerBackground);
-
-      final layerManager = LayerManager(layerGraph);
-      layerManager.addLayer(layerA);
-      layerManager.addLayer(layerB);
-      layerManager.addLayer(layerC, position: 1);
-
-      final outputBitmap = layerGraph.process(
-        GRect(
+      final layerGraph = RenderingEngine(
+        layerBackground,
+        outputRoi: GRect(
           x: 0,
           y: 0,
           width: 22,
           height: 22,
         ),
       );
+
+      final layerManager = LayerManager(layerGraph);
+      layerManager.addLayer(layerA);
+      layerManager.addLayer(layerB);
+      layerManager.addLayer(layerC, position: 1);
+
+      final outputBitmap = layerGraph.render();
       final expectedBitmap =
           await loadBitmapFromImage("$testAssetPath/layers_c_a_b.png", 22, 22);
 
@@ -81,21 +83,22 @@ void main() {
     });
 
     test("insert layer c at position 2 in layers a b", () async {
-      final layerGraph = NodeGraph(layerBackground);
-
-      final layerManager = LayerManager(layerGraph);
-      layerManager.addLayer(layerA);
-      layerManager.addLayer(layerB);
-      layerManager.addLayer(layerC, position: 2);
-
-      final outputBitmap = layerGraph.process(
-        GRect(
+      final layerGraph = RenderingEngine(
+        layerBackground,
+        outputRoi: GRect(
           x: 0,
           y: 0,
           width: 22,
           height: 22,
         ),
       );
+
+      final layerManager = LayerManager(layerGraph);
+      layerManager.addLayer(layerA);
+      layerManager.addLayer(layerB);
+      layerManager.addLayer(layerC, position: 2);
+
+      final outputBitmap = layerGraph.render();
       final expectedBitmap =
           await loadBitmapFromImage("$testAssetPath/layers_a_c_b.png", 22, 22);
 
@@ -109,7 +112,15 @@ void main() {
     });
 
     test("remove layer b in layers a b", () async {
-      final layerGraph = NodeGraph(layerBackground);
+      final layerGraph = RenderingEngine(
+        layerBackground,
+        outputRoi: GRect(
+          x: 0,
+          y: 0,
+          width: 22,
+          height: 22,
+        ),
+      );
 
       final layerManager = LayerManager(layerGraph);
       layerManager.addLayer(layerA);
@@ -117,14 +128,7 @@ void main() {
 
       layerManager.removeLayer(2);
 
-      final outputBitmap = layerGraph.process(
-        GRect(
-          x: 0,
-          y: 0,
-          width: 22,
-          height: 22,
-        ),
-      );
+      final outputBitmap = layerGraph.render();
       final expectedBitmap =
           await loadBitmapFromImage("$testAssetPath/layers_a.png", 22, 22);
 
@@ -135,7 +139,15 @@ void main() {
     });
 
     test("remove layer a in layers a b", () async {
-      final layerGraph = NodeGraph(layerBackground);
+      final layerGraph = RenderingEngine(
+        layerBackground,
+        outputRoi: GRect(
+          x: 0,
+          y: 0,
+          width: 22,
+          height: 22,
+        ),
+      );
 
       final layerManager = LayerManager(layerGraph);
       layerManager.addLayer(layerA);
@@ -143,14 +155,7 @@ void main() {
 
       layerManager.removeLayer(1);
 
-      final outputBitmap = layerGraph.process(
-        GRect(
-          x: 0,
-          y: 0,
-          width: 22,
-          height: 22,
-        ),
-      );
+      final outputBitmap = layerGraph.render();
       final expectedBitmap =
           await loadBitmapFromImage("$testAssetPath/layers_b.png", 22, 22);
 
@@ -161,7 +166,15 @@ void main() {
     });
 
     test("remove layer b in layers a b c", () async {
-      final layerGraph = NodeGraph(layerBackground);
+      final layerGraph = RenderingEngine(
+        layerBackground,
+        outputRoi: GRect(
+          x: 0,
+          y: 0,
+          width: 22,
+          height: 22,
+        ),
+      );
 
       final layerManager = LayerManager(layerGraph);
       layerManager.addLayer(layerA);
@@ -170,14 +183,7 @@ void main() {
 
       layerManager.removeLayer(2);
 
-      final outputBitmap = layerGraph.process(
-        GRect(
-          x: 0,
-          y: 0,
-          width: 22,
-          height: 22,
-        ),
-      );
+      final outputBitmap = layerGraph.render();
       final expectedBitmap =
           await loadBitmapFromImage("$testAssetPath/layers_a_c.png", 22, 22);
 
@@ -186,32 +192,6 @@ void main() {
       expect(layerManager.layers.first.rootNode.id, equals(layerBackground.id));
       expect(layerManager.layers[1].rootNode.id, equals(layerA.id));
       expect(layerManager.layers[2].rootNode.id, equals(layerC.id));
-    });
-
-    test("layer benchmark - add and process single layer", () async {
-      final layerBg = SourceNode(
-          source: await loadBitmapFromImage(
-              "$testAssetPath/layer_benchmark_bg.png"));
-      final layerA = SourceNode(
-          source: await loadBitmapFromImage(
-              "$testAssetPath/layer_benchmark_a.png"));
-
-      benchmark(() {
-        final layerGraph = NodeGraph(layerBg);
-        final layerManager = LayerManager(layerGraph);
-
-        layerManager.addLayer(layerA);
-        layerGraph.process(
-          GRect(
-            x: 0,
-            y: 0,
-            width: layerBg.source.width,
-            height: layerBg.source.height,
-          ),
-        );
-      }, iterations: 200);
-
-      expect(true, isTrue);
     });
   });
 }

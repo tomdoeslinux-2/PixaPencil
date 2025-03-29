@@ -27,8 +27,6 @@ Future<GBitmap> loadBitmapFromImage(
     throw ArgumentError("Unsupported number of channels");
   }
 
-  print(config);
-
   return GBitmap.fromPixels(
     pixels,
     width ?? image.width,
@@ -57,8 +55,9 @@ Future<Uint8List> generateGraphImage(Node rootNode) async {
 
   void writeNodeToBuffer(Node node) {
     final nodeTitle = 'Node${node.id}';
+    final fillColor = node.isPassthrough ? 'red' : 'white';
     dotContentBuffer
-        .writeln('\t$nodeTitle [label="id ${node.id}\n${node.runtimeType}"]');
+        .writeln('\t$nodeTitle [label="id ${node.id}\n${node.runtimeType}", style="filled", fillcolor="$fillColor"]');
 
     if (node.inputNode != null) {
       dotContentBuffer.writeln(

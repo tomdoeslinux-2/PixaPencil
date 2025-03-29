@@ -9,12 +9,26 @@ abstract class Node {
   Node? _auxNode;
   Node? parentNode;
 
+  var isPassthrough = false;
+
   Node({required Node? inputNode, Node? auxNode})
       : id = _generateId(),
         _inputNode = inputNode,
         _auxNode = auxNode {
     _inputNode?.parentNode = this;
     _auxNode?.parentNode = this;
+  }
+
+  void wrapInput(Node node) {
+    node.inputNode = _inputNode;
+    _inputNode!.parentNode = node;
+    inputNode = node;
+  }
+
+  void wrapAux(Node node) {
+    node.auxNode = _auxNode;
+    _auxNode!.parentNode = node;
+    auxNode = node;
   }
 
   Node? get inputNode => _inputNode;
@@ -38,6 +52,13 @@ abstract class Node {
   GBitmap operation(GRect? roi);
 
   GBitmap process(GRect? roi) {
+    if (isPassthrough && inputNode != null) {
+      return inputNode!.process(roi);
+    } else if (isPassthrough) {
+      throw ArgumentError(
+          'Node marked as passthrough but has no inputNode to forward processing to');
+    }
+
     final bitmap = operation(roi);
 
     return bitmap;

@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:graphics/src/algorithms/blend_colors.dart';
-import 'package:graphics/src/utils.dart';
 
 import 'color.dart';
 import 'rect.dart';
@@ -243,5 +242,9 @@ class GBitmap {
     }
 
     return outputBitmap;
+  }
+
+  GRect toRect() {
+    return GRect(x: 0, y: 0, width: width, height: height);
   }
 }

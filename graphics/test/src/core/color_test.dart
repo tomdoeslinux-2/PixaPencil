@@ -51,8 +51,6 @@ void main() {
 
       GColors.rgbToHsl(96, 4, 66, hslValues);
 
-      print(hslValues);
-
       expect(hslValues.map((c) => double.parse(c.toStringAsFixed(3))), [320.000, 0.920, 0.196]);
     });
 

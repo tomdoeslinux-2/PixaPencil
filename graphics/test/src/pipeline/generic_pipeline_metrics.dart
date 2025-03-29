@@ -5,10 +5,11 @@ import 'package:graphics/src/utils.dart';
 import '../../utils.dart';
 
 void main() async {
-  final nodeGraph = NodeGraph(
+  final nodeGraph = RenderingEngine(
     SourceNode(
       source: GBitmap(500, 500, config: GBitmapConfig.rgba)..fillColor(GColors.green),
     ),
+    outputRoi: GRect(x: 0, y: 0, width: 500, height: 500),
   );
 
   final layerManager = LayerManager(nodeGraph);
@@ -42,10 +43,10 @@ void main() async {
     ),
   );
 
-  saveBitmapToLocalDir(nodeGraph.process(GRect(x: 0, y: 0, width: 500, height: 500)), "output.png");
+  saveBitmapToLocalDir(nodeGraph.render(), "output.png");
   exportGraphToPNG(nodeGraph.rootNode, "output_graph");
 
   benchmark(() {
-    nodeGraph.process(GRect(x: 0, y: 0, width: 500, height: 500));
+    nodeGraph.render();
   }, iterations: 1);
 }
