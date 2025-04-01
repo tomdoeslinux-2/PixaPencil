@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:app/models/bitmap_extensions.dart';
+import 'package:app/models/canvas_controller.dart';
 import 'package:app/widgets/svg_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:graphics/graphics.dart';
@@ -151,7 +152,10 @@ class CanvasPainter extends CustomPainter {
 }
 
 class DrawingScreen extends StatelessWidget {
-  const DrawingScreen({super.key});
+  final CanvasController _canvasController =
+      CanvasController(width: 100, height: 100);
+
+  DrawingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -206,9 +210,23 @@ class DrawingScreen extends StatelessWidget {
               Expanded(
                 child: Container(
                   color: Colors.grey,
-                  child: CustomPaint(
-                    painter: await GBitmap(25, 25, config: GBitmapConfig.rgb,).toFlutterImage(), // why this not working????
-                    size: Size.infinite,
+                  child: FutureBuilder<ui.Image>(
+                    future: _canvasController.draw().toFlutterImage(),
+                    builder: (ctx, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+
+                      return CustomPaint(
+                        painter: CanvasPainter(
+                          image: snapshot.data!,
+                          zoom: 1.0,
+                          zoomOrigin: const Offset(1.0, 1.0),
+                          panOffset: const Offset(1.0, 1.0),
+                        ),
+                        size: Size.infinite,
+                      );
+                    },
                   ),
                 ),
               ),

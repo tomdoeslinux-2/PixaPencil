@@ -1,38 +1,25 @@
+import 'package:app/models/canvas_controller.dart';
 import 'package:app/models/tool.dart';
 import 'package:graphics/graphics.dart';
 
 class PencilTool extends Tool {
-  PathNode? _currentPathNode;
+  final CanvasController drawingController;
   final bool isEraser;
 
-  PencilTool(super.drawingState, {this.isEraser = false});
+  PencilTool(super.drawingState, {required this.drawingController, this.isEraser = false});
 
   @override
   void onTouchDown(GPoint point) {
-    _currentPathNode = PathNode(
-      inputNode: null,
-      path: [point],
-      color: !isEraser ? drawingState.selectedColor : GColors.rgba(0, 0, 0, 0),
-    );
-
-    if (operatingNode.parentNode?.auxNode == operatingNode) {
-      operatingNode.parentNode?.auxNode = _currentPathNode;
-    } else {
-      operatingNode.parentNode?.inputNode = _currentPathNode;
-    }
-    _currentPathNode?.inputNode = operatingNode;
-
-    drawingState.nodeGraph.populateNodeLUT();
-    drawingState.layerManager.populateLayers();
+    drawingController.beginPath(GColors.black, point);
   }
 
   @override
-  void onTouchMove(GPoint point) async {
-    _currentPathNode?.addPoint(point);
+  void onTouchMove(GPoint point) {
+    drawingController.addPointToPath(point);
   }
 
   @override
   void onTouchUp() {
-    _currentPathNode = null;
+    drawingController.endPath();
   }
 }

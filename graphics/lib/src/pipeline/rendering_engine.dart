@@ -1,5 +1,4 @@
 import 'package:graphics/graphics.dart';
-import 'package:graphics/src/core/tile.dart';
 import 'package:graphics/src/utils.dart';
 import 'graph_traversal.dart';
 

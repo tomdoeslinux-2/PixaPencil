@@ -29,7 +29,10 @@ class OverlayNode extends Node {
 
   @override
   GBitmap operation(GRect? roi) {
+    print('overlay node with id $id has been visited');
+
     if (_cache.has(kOverlayNodeCacheKeyResult)) {
+      print('overlay node with id $id is returning cached result');
       return _cache.retrieve(kOverlayNodeCacheKeyResult)!;
     }
 
@@ -37,6 +40,7 @@ class OverlayNode extends Node {
     var overlayBitmap = auxNode!.process(null);
 
     if (_cache.has(kOverlayNodeCacheKeyOverlay)) {
+      print('overlay node with id $id is using cached overlay bitmap');
       overlayBitmap = _cache.retrieve(kOverlayNodeCacheKeyOverlay)!;
     } else {
       overlayBitmap = auxNode!.process(null);

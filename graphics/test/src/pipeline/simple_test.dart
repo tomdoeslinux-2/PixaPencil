@@ -24,5 +24,10 @@ void main() async {
   layerManager.addLayer(SourceNode(source: layer4Image));
   layerManager.addLayer(SourceNode(source: layer5Image));
 
-  
+  layerManager.activeLayerIndex = 0;
+
+  await exportGraphToPNG(engine.rootNode, 'test');
+  saveBitmapToLocalDir(engine.render(), 'test_out.png');
+  print("xxx");
+    saveBitmapToLocalDir(engine.render(), 'test_out2.png');
 }

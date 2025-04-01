@@ -22,7 +22,7 @@ class Layer {
 class LayerManager {
   final RenderingEngine renderingEngine;
   var layers = <Layer>[];
-  int _activeLayerIndex = 0; 
+  int _activeLayerIndex = -1;
 
   LayerManager(this.renderingEngine) {
     _populateLayers();
@@ -42,32 +42,37 @@ class LayerManager {
     final targetLayer = layers[_activeLayerIndex];
     final targetLayerNode = targetLayer.overNode!;
 
-    for (final layer in layers.reversed) {
-      if (layer == targetLayer) {
-        break;
+    if (targetLayerNode.parentNode != null) {
+      for (final layer in layers.reversed) {
+        if (layer == targetLayer) {
+          break;
+        }
+
+        if (layer.overNode != targetLayerNode.parentNode) {
+          layer.overNode!.isPassthrough = true;
+        }
+
+        if (compositedAbove == null) {
+          compositedAbove ??= layer.rootNode.process(null);
+          continue;
+        }
+
+        compositedAbove =
+            GBitmap.overlay(layer.rootNode.process(null), compositedAbove);
       }
 
-      if (layer.overNode != targetLayerNode.parentNode) {
-        layer.overNode!.isPassthrough = true;
-      }
-
-      if (compositedAbove == null) {
-        compositedAbove ??= layer.rootNode.process(null);
-        continue;
-      }
-
-      compositedAbove =
-          GBitmap.overlay(layer.rootNode.process(null), compositedAbove);
+      (targetLayerNode.parentNode as OverlayNode)
+          .cache
+          .store(kOverlayNodeCacheKeyOverlay, compositedAbove!);
     }
 
-    (targetLayerNode.parentNode as OverlayNode)
-        .cache
-        .store(kOverlayNodeCacheKeyOverlay, compositedAbove!);
-
-    final result = targetLayerNode.inputNode!.process(renderingEngine.outputRoi);
-    (targetLayerNode.inputNode as OverlayNode)
-        .cache
-        .store(kOverlayNodeCacheKeyResult, result);
+    if (targetLayerNode.inputNode is OverlayNode) {
+      final compositedBelow =
+          targetLayerNode.inputNode!.process(renderingEngine.outputRoi);
+      (targetLayerNode.inputNode as OverlayNode)
+          .cache
+          .store(kOverlayNodeCacheKeyResult, compositedBelow);
+    } 
   }
 
   void _populateLayers() {
