@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
           )
         )
       ),
-      home: const DrawingScreen(),
+      home: DrawingScreen(),
     );
   }
 }
@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: const DrawingScreen(),
+      body: DrawingScreen(),
     );
   }
 }

@@ -1,12 +1,11 @@
-import 'package:app/screens/drawing/drawing_state.dart';
 import 'package:graphics/graphics.dart';
 
+import 'canvas_controller.dart';
+
 abstract class Tool {
-  final DrawingState drawingState;
+  final CanvasController canvasController;
 
-  Node get operatingNode => drawingState.layers[drawingState.activeLayerIndex].rootNode;
-
-  Tool(this.drawingState);
+  Tool({required this.canvasController});
 
   void onTouchDown(GPoint point);
   void onTouchMove(GPoint point);

@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:app/models/bitmap_extensions.dart';
 import 'package:app/models/canvas_controller.dart';
+import 'package:app/models/tool_type.dart';
 import 'package:app/widgets/svg_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:graphics/graphics.dart';
@@ -109,6 +110,8 @@ class CanvasPainter extends CustomPainter {
     required this.panOffset,
   });
 
+  Rect get artboardRect => _artboardRect;
+
   void _calculateArtboardRect(Size canvasSize) {
     final originalWidth =
         min(canvasSize.width, image.width * (canvasSize.height / image.height));
@@ -151,14 +154,60 @@ class CanvasPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-class DrawingScreen extends StatelessWidget {
+class DrawingScreen extends StatefulWidget {
+  const DrawingScreen({super.key});
+
+  @override
+  State<DrawingScreen> createState() => _DrawingScreenState();
+}
+
+class _DrawingScreenState extends State<DrawingScreen> {
   final CanvasController _canvasController =
       CanvasController(width: 100, height: 100);
+  ui.Image? _canvasOutput;
 
-  DrawingScreen({super.key});
+  @override
+  void initState() {
+    super.initState();
+    _canvasController.addLayer();
+    _updateCanvasOutput();
+  }
+
+  Future<void> _updateCanvasOutput() async {
+    final output = await _canvasController.draw().toFlutterImage();
+
+    setState(() {
+      _canvasOutput = output;
+    });
+  }
+
+  GPoint _convertLocalToBitmapCoordinates(
+      Offset localPosition, Rect artboardRect) {
+    final artboardPosition = localPosition - artboardRect.topLeft;
+
+    final x =
+        ((artboardPosition.dx / artboardRect.width) * _canvasController.width)
+            .toInt();
+    final y =
+        ((artboardPosition.dy / artboardRect.height) * _canvasController.height)
+            .toInt();
+
+    return (x: x, y: y);
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_canvasOutput == null) {
+      return const CircularProgressIndicator();
+    }
+
+    final canvasPainter = CanvasPainter(
+      image: _canvasOutput!,
+      zoom: 1.0,
+      zoomOrigin: const Offset(1.0, 1.0),
+      panOffset: const Offset(1.0, 1.0),
+    );
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -210,23 +259,30 @@ class DrawingScreen extends StatelessWidget {
               Expanded(
                 child: Container(
                   color: Colors.grey,
-                  child: FutureBuilder<ui.Image>(
-                    future: _canvasController.draw().toFlutterImage(),
-                    builder: (ctx, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      }
+                  child: GestureDetector(
+                    onScaleStart: (details) {
+                      final point = _convertLocalToBitmapCoordinates(
+                          details.localFocalPoint, canvasPainter.artboardRect);
 
-                      return CustomPaint(
-                        painter: CanvasPainter(
-                          image: snapshot.data!,
-                          zoom: 1.0,
-                          zoomOrigin: const Offset(1.0, 1.0),
-                          panOffset: const Offset(1.0, 1.0),
-                        ),
-                        size: Size.infinite,
-                      );
+                      ToolType.pencil
+                          .getToolInstance(_canvasController)
+                          .onTouchDown(point);
+
+                      _updateCanvasOutput();
                     },
+                    onScaleUpdate: (details) {
+                      final point = _convertLocalToBitmapCoordinates(
+                          details.localFocalPoint, canvasPainter.artboardRect);
+                      ToolType.pencil
+                          .getToolInstance(_canvasController)
+                          .onTouchMove(point);
+
+                      _updateCanvasOutput();
+                    },
+                    child: CustomPaint(
+                      painter: canvasPainter,
+                      size: Size.infinite,
+                    ),
                   ),
                 ),
               ),

@@ -1,10 +1,12 @@
+import 'dart:io';
+
 import 'package:graphics/graphics.dart';
 
 class CanvasController {
   final int width;
   final int height;
 
-  int _selectedLayerIndex  = 0;
+  int _selectedLayerIndex = 1;
 
   final RenderingEngine _engine;
   late final LayerManager _layerManager;
@@ -47,11 +49,13 @@ class CanvasController {
       path: [startingPoint],
     );
 
-    currentLayer.rootNode.wrapInput(newPathNode);
+    currentLayer.overNode!.wrapInput(newPathNode);
     _activePathNode = newPathNode;
   }
 
   void addPointToPath(GPoint point) {
+    if (_activePathNode == null) beginPath(GColors.black, point);
+
     _activePathNode!.addPoint(point);
   }
 

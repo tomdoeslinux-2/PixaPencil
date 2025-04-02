@@ -3,23 +3,22 @@ import 'package:app/models/tool.dart';
 import 'package:graphics/graphics.dart';
 
 class PencilTool extends Tool {
-  final CanvasController drawingController;
   final bool isEraser;
 
-  PencilTool(super.drawingState, {required this.drawingController, this.isEraser = false});
+  PencilTool({this.isEraser = false, required super.canvasController});
 
   @override
   void onTouchDown(GPoint point) {
-    drawingController.beginPath(GColors.black, point);
+    canvasController.beginPath(GColors.black, point);
   }
 
   @override
   void onTouchMove(GPoint point) {
-    drawingController.addPointToPath(point);
+    canvasController.addPointToPath(point);
   }
 
   @override
   void onTouchUp() {
-    drawingController.endPath();
+    canvasController.endPath();
   }
 }
