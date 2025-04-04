@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: Colors.white.withValues(alpha: 0.25),
+        backgroundColor: Colors.white,
         centerTitle: true,
         title: const Text('PixaPencil'),
         toolbarHeight: 64,

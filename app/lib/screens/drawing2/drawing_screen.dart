@@ -154,6 +154,80 @@ class CanvasPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+class ColorSwatchItem extends StatelessWidget {
+  final Color color;
+
+  const ColorSwatchItem({super.key, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 45,
+      height: 28,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+        color: color,
+      ),
+    );
+  }
+}
+
+class ColorSwatchPanel extends StatelessWidget {
+  const ColorSwatchPanel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Container(
+        color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8),
+              child: Row(
+                spacing: 4,
+                children: [
+                  ColorSwatchItem(color: Colors.red),
+                  ColorSwatchItem(color: Colors.green),
+                  ColorSwatchItem(color: Colors.blue),
+                ],
+              ),
+            ),
+            AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                alignment: Alignment.center,
+                child: Container(
+                  width: 29,
+                  height: 29,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black,
+                  ),
+                  child: Container(
+                    width: 26.8,
+                    height: 26.8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.yellow,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 2.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class DrawingScreen extends StatefulWidget {
   const DrawingScreen({super.key});
 
@@ -211,6 +285,9 @@ class _DrawingScreenState extends State<DrawingScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         title: const Text('Untitled'),
         actions: [
@@ -256,6 +333,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
           color: Colors.white,
           child: Column(
             children: [
+              const ColorSwatchPanel(),
               Expanded(
                 child: Container(
                   color: Colors.grey,
