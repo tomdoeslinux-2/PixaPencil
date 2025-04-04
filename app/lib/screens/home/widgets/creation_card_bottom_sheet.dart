@@ -12,28 +12,28 @@ class CreationCardBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       (
-      icon: const SvgIcon('assets/icons/select_check_box_m3.svg'),
-      text: 'Select creations'
+        icon: const SvgIcon('assets/icons/select_check_box_m3.svg'),
+        text: 'Select creations'
       ),
       (
-      icon: const Icon(Icons.favorite_outline),
-      text: 'Add to favorites',
+        icon: const Icon(Icons.favorite_outline),
+        text: 'Add to favorites',
       ),
       (
-      icon: const Icon(Icons.create_new_folder_outlined),
-      text: 'Add to collection'
+        icon: const Icon(Icons.create_new_folder_outlined),
+        text: 'Add to collection'
       ),
       (
-      icon: const SvgIcon('assets/icons/content_copy_m3.svg'),
-      text: 'Make a copy',
+        icon: const SvgIcon('assets/icons/content_copy_m3.svg'),
+        text: 'Make a copy',
       ),
       (
-      icon: const Icon(Icons.info_outline),
-      text: 'View info',
+        icon: const Icon(Icons.info_outline),
+        text: 'View info',
       ),
       (
-      icon: const SvgIcon('assets/icons/delete_m3.svg'),
-      text: 'Delete',
+        icon: const SvgIcon('assets/icons/delete_m3.svg'),
+        text: 'Delete',
       ),
     ];
 
@@ -58,10 +58,10 @@ class CreationCardBottomSheet extends StatelessWidget {
       height: 64,
       decoration: const BoxDecoration(
           border: Border(
-            bottom: BorderSide(
-              color: Color(0xFFE8E8E8),
-            ),
-          )),
+        bottom: BorderSide(
+          color: Color(0xFFE8E8E8),
+        ),
+      )),
       child: Row(
         spacing: 18,
         children: [
@@ -100,8 +100,8 @@ class CreationCardBottomSheet extends StatelessWidget {
                 Text(
                   text,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ),

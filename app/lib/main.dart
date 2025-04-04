@@ -1,10 +1,10 @@
-import 'package:app/screens/drawing2/drawing_screen.dart';
+import 'package:app/screens/drawing/drawing_screen.dart';
 import 'package:app/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: DrawingScreen(),
+      body: const DrawingScreen(),
     );
   }
 }

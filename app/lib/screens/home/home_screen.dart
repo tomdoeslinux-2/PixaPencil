@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:app/screens/drawing2/drawing_screen.dart';
+import 'package:app/screens/drawing/drawing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 

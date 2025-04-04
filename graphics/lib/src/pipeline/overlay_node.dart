@@ -29,7 +29,7 @@ class OverlayNode extends Node {
 
   @override
   GBitmap operation(GRect? roi) {
-    print('overlay node with id $id has been visited');
+    // print('overlay node with id $id has been visited');
 
     if (_cache.has(kOverlayNodeCacheKeyResult)) {
       print('overlay node with id $id is returning cached result');
