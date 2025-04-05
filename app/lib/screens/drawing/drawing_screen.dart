@@ -64,7 +64,7 @@ class CanvasPainter extends CustomPainter {
 
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()..color = const Color(0xFFC0C0C0),
+      Paint()..color = const Color(0xFFEBEBEB),
     );
     canvas.drawRect(_artboardRect, _artboardPaint);
     canvas.drawImageRect(image, _getSrcRect(), _artboardRect, Paint());
@@ -83,13 +83,13 @@ class DrawingScreen extends ConsumerStatefulWidget {
 }
 
 class _DrawingScreenState extends ConsumerState<DrawingScreen> {
-  final CanvasController _canvasController =
-      CanvasController(width: 100, height: 100);
+  late final CanvasController _canvasController;
   ui.Image? _canvasOutput;
 
   @override
   void initState() {
     super.initState();
+    _canvasController = ref.read(canvasControllerProvider);
     _canvasController.addLayer();
     _updateCanvasOutput();
   }
@@ -143,24 +143,19 @@ class _DrawingScreenState extends ConsumerState<DrawingScreen> {
                   color: Colors.grey,
                   child: GestureDetector(
                     onScaleStart: (details) {
+                      final selectedTool = ref.read(drawingStateProvider).selectedTool;
                       final point = _convertLocalToBitmapCoordinates(
                           details.localFocalPoint, canvasPainter.artboardRect);
 
-                      PencilTool(
-                        canvasController: _canvasController,
-                        getColor: () =>
-                            ref.read(drawingStateProvider).selectedColor,
-                      ).onTouchDown(point);
-
+                      selectedTool.onTouchDown(point);
                       _updateCanvasOutput();
                     },
                     onScaleUpdate: (details) {
+                      final selectedTool = ref.read(drawingStateProvider).selectedTool;
                       final point = _convertLocalToBitmapCoordinates(
                           details.localFocalPoint, canvasPainter.artboardRect);
-                      ToolType.pencil
-                          .getToolInstance(_canvasController)
-                          .onTouchMove(point);
 
+                      selectedTool.onTouchMove(point);
                       _updateCanvasOutput();
                     },
                     child: CustomPaint(

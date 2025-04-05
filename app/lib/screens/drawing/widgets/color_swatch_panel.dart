@@ -7,11 +7,13 @@ import 'package:graphics/graphics.dart';
 class ColorSwatchItem extends StatelessWidget {
   final Color color;
   final void Function(Color) onTap;
+  final bool isActive;
 
   const ColorSwatchItem({
     super.key,
     required this.color,
     required this.onTap,
+    this.isActive = false,
   });
 
   @override
@@ -20,13 +22,30 @@ class ColorSwatchItem extends StatelessWidget {
       onTap: () {
         onTap(color);
       },
-      child: Container(
-        width: 45,
-        height: 28,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(5)),
-          color: color,
-        ),
+      child: Stack(
+        children: [
+          Container(
+            width: 45,
+            height: 28,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(5)),
+              color: color,
+            ),
+          ),
+          if (isActive)
+            Positioned(
+              bottom: 4,
+              right: 4,
+              child: Container(
+                width: 16,
+                height: 16,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFd0d0d0),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -35,18 +54,28 @@ class ColorSwatchItem extends StatelessWidget {
 class ColorSwatchPanel extends ConsumerWidget {
   const ColorSwatchPanel({super.key});
 
-  void _onColorTap(Color color, WidgetRef ref) {
+  void _onColorTap(Color color, int index, WidgetRef ref) {
     final notifier = ref.read(drawingStateProvider.notifier);
     notifier.changeColor(color.toGColor());
+    notifier.changeColorIndex(index);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedColor = ref.watch(drawingStateProvider).selectedColor;
+    final selectedColorIndex = ref.watch(drawingStateProvider).selectedColorIndex;
 
     return IntrinsicHeight(
       child: Container(
-        color: Colors.white,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(
+              color: Color(0xFFE8E8E8),
+              width: 2,
+            ),
+          ),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -56,16 +85,19 @@ class ColorSwatchPanel extends ConsumerWidget {
                 spacing: 4,
                 children: [
                   ColorSwatchItem(
+                    isActive: selectedColorIndex == 0,
                     color: Colors.red,
-                    onTap: (color) => _onColorTap(color, ref),
+                    onTap: (color) => _onColorTap(color, 0, ref),
                   ),
                   ColorSwatchItem(
+                    isActive: selectedColorIndex == 1,
                     color: Colors.green,
-                    onTap: (color) => _onColorTap(color, ref),
+                    onTap: (color) => _onColorTap(color, 1, ref),
                   ),
                   ColorSwatchItem(
+                    isActive: selectedColorIndex == 2,
                     color: Colors.blue,
-                    onTap: (color) => _onColorTap(color, ref),
+                    onTap: (color) => _onColorTap(color, 2, ref),
                   ),
                 ],
               ),

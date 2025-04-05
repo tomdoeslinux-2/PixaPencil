@@ -1,20 +1,18 @@
+import 'package:app/models/tool_type.dart';
+import 'package:app/providers/drawing_state_provider.dart';
 import 'package:app/widgets/svg_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'tool_button.dart';
 
-class ToolPanel extends StatefulWidget {
+class ToolPanel extends ConsumerWidget {
   const ToolPanel({super.key});
 
   @override
-  State<ToolPanel> createState() => _ToolPanelState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedTool = ref.watch(drawingStateProvider).selectedTool;
 
-class _ToolPanelState extends State<ToolPanel> {
-  int _selectedToolIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
       height: 74,
       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -23,18 +21,18 @@ class _ToolPanelState extends State<ToolPanel> {
         children: [
           ToolButton(
             icon: const SvgIcon('assets/icons/edit_m3.svg'),
-            isSelected: _selectedToolIndex == 0,
-            onTap: () => setState(() => _selectedToolIndex = 0),
+            isSelected: selectedTool.toolType == ToolType.pencil,
+            onTap: () => ref.read(drawingStateProvider.notifier).changeToolType(ToolType.pencil),
           ),
           ToolButton(
             icon: const SvgIcon('assets/icons/eraser_m3.svg'),
-            isSelected: _selectedToolIndex == 1,
-            onTap: () => setState(() => _selectedToolIndex = 1),
+            isSelected: selectedTool.toolType == ToolType.eraser,
+            onTap: () => ref.read(drawingStateProvider.notifier).changeToolType(ToolType.eraser),
           ),
           ToolButton(
             icon: const SvgIcon('assets/icons/colorize_m3.svg'),
-            isSelected: _selectedToolIndex == 2,
-            onTap: () => setState(() => _selectedToolIndex = 2),
+            isSelected: selectedTool.toolType == ToolType.colorPicker,
+            onTap: () => ref.read(drawingStateProvider.notifier).changeToolType(ToolType.colorPicker),
           ),
         ],
       ),
