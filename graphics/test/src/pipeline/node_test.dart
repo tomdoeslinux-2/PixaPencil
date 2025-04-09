@@ -18,19 +18,6 @@ class TestNode extends Node {
 
 void main() {
   group('Node tests', () {
-    test('wrapInput works as expected', () {
-      final child = TestNode(inputNode: null);
-      final parent = TestNode(inputNode: child);
-      final wrapper = TestNode(inputNode: null);
-
-      parent.wrapInput(wrapper);
-
-      expect(parent.inputNode, equals(wrapper));
-      expect(parent.inputNode!.parentNode, equals(parent));
-      expect(parent.inputNode!.inputNode, equals(child));
-      expect(parent.inputNode!.inputNode!.parentNode, equals(wrapper));
-    });
-
     test('process calls own operation when isPassthrough is false', () {
       final node = TestNode(inputNode: null);
       node.isPassthrough = false;

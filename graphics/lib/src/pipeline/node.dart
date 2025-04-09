@@ -19,16 +19,18 @@ abstract class Node {
     _auxNode?.parentNode = this;
   }
 
-  void wrapInput(Node node) {
-    node.inputNode = _inputNode;
-    _inputNode!.parentNode = node;
-    inputNode = node;
-  }
+  void insertAbove(Node node) {
+    final curParent = parentNode;
 
-  void wrapAux(Node node) {
-    node.auxNode = _auxNode;
-    _auxNode!.parentNode = node;
-    auxNode = node;
+    if (curParent?.inputNode == this) {
+      curParent!.inputNode = node;
+    } else if (curParent?.auxNode == this) {
+      curParent!.auxNode = node;
+    }
+
+    node.inputNode = this;
+    node.parentNode = curParent;
+    parentNode = node;
   }
 
   Node? get inputNode => _inputNode;

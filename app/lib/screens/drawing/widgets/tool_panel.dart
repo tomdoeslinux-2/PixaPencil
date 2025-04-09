@@ -16,6 +16,14 @@ class ToolPanel extends ConsumerWidget {
     return Container(
       height: 74,
       padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: Color(0xFFE8E8E8),
+            width: 1,
+          ),
+        ),
+      ),
       child: Row(
         spacing: 10,
         children: [

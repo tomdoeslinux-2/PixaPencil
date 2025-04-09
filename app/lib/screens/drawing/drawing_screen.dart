@@ -7,6 +7,7 @@ import 'package:app/models/pencil_tool.dart';
 import 'package:app/models/tool_type.dart';
 import 'package:app/providers/drawing_state_provider.dart';
 import 'package:app/screens/drawing/widgets/drawing_app_bar.dart';
+import 'package:app/screens/drawing/widgets/layers_panel.dart';
 import 'package:app/widgets/svg_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -149,6 +150,7 @@ class _DrawingScreenState extends ConsumerState<DrawingScreen> {
 
                       selectedTool.onTouchDown(point);
                       _updateCanvasOutput();
+                      ref.read(drawingStateProvider.notifier).notifyLayersUpdated();
                     },
                     onScaleUpdate: (details) {
                       final selectedTool = ref.read(drawingStateProvider).selectedTool;
@@ -157,6 +159,7 @@ class _DrawingScreenState extends ConsumerState<DrawingScreen> {
 
                       selectedTool.onTouchMove(point);
                       _updateCanvasOutput();
+                      ref.read(drawingStateProvider.notifier).notifyLayersUpdated();
                     },
                     child: CustomPaint(
                       painter: canvasPainter,
@@ -165,6 +168,7 @@ class _DrawingScreenState extends ConsumerState<DrawingScreen> {
                   ),
                 ),
               ),
+              const LayersPanel(),
               const ToolPanel(),
             ],
           ),

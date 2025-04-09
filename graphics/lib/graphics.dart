@@ -6,6 +6,7 @@ export 'src/algorithms/gaussian_blur.dart';
 export 'src/algorithms/interpolate_colors.dart';
 export 'src/algorithms/line.dart';
 export 'src/algorithms/linear_gradient.dart';
+export 'src/utils.dart';
 
 export 'src/core/bitmap_iterator.dart';
 export 'src/core/bitmap.dart';

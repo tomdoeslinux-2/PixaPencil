@@ -25,6 +25,7 @@ void main() async {
   layerManager.addLayer(SourceNode(source: layer5Image));
 
   layerManager.activeLayerIndex = 0;
+  print('selected root node id is: ${layerManager.layers[layerManager.activeLayerIndex].rootNode.id}');
 
   await exportGraphToPNG(engine.rootNode, 'test');
   saveBitmapToLocalDir(engine.render(), 'test_out.png');

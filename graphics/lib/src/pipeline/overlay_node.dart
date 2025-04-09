@@ -16,10 +16,15 @@ class Cache {
   bool has(String key) {
     return _cache.containsKey(key);
   }
+
+  void clear() {
+    return _cache.clear();
+  }
 }
 
 const kOverlayNodeCacheKeyResult = 'result';
 const kOverlayNodeCacheKeyOverlay = 'overlay';
+const kOverlayNodeCacheKeyBackground = 'background';
 
 class OverlayNode extends Node {
   final _cache = Cache();
@@ -29,15 +34,22 @@ class OverlayNode extends Node {
 
   @override
   GBitmap operation(GRect? roi) {
-    // print('overlay node with id $id has been visited');
-
     if (_cache.has(kOverlayNodeCacheKeyResult)) {
       print('overlay node with id $id is returning cached result');
       return _cache.retrieve(kOverlayNodeCacheKeyResult)!;
     }
 
-    final baseBitmap = inputNode!.process(roi);
-    var overlayBitmap = auxNode!.process(null);
+    GBitmap? backgroundBitmap;
+    GBitmap? overlayBitmap;
+
+    print('$id is being visited');
+
+    if (_cache.has(kOverlayNodeCacheKeyBackground)) {
+      print('overlay node with id $id is using cached background bitmap');
+      backgroundBitmap = _cache.retrieve(kOverlayNodeCacheKeyBackground)!;
+    } else {
+      backgroundBitmap = inputNode!.process(roi);
+    }
 
     if (_cache.has(kOverlayNodeCacheKeyOverlay)) {
       print('overlay node with id $id is using cached overlay bitmap');
@@ -46,9 +58,9 @@ class OverlayNode extends Node {
       overlayBitmap = auxNode!.process(null);
     }
 
-    final overlayedBitmap = GBitmap.overlay(baseBitmap, overlayBitmap);
+    final mergedBitmap = GBitmap.overlay(backgroundBitmap, overlayBitmap);
 
-    return overlayedBitmap;
+    return mergedBitmap;
   }
 
   @override

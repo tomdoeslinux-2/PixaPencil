@@ -6,7 +6,7 @@ class CanvasController {
   final int width;
   final int height;
 
-  int _selectedLayerIndex = 1;
+  int _selectedLayerIndex = 0;
 
   final RenderingEngine _engine;
   late final LayerManager _layerManager;
@@ -20,12 +20,18 @@ class CanvasController {
     _layerManager = LayerManager(_engine);
   }
 
+  Node get rootNode => _engine.rootNode;
+
+  List<Layer> get layers => _layerManager.layers;
+
   int get selectedLayerIndex => _selectedLayerIndex;
 
   set selectedLayerIndex(int selectedLayerIndex) {
     _selectedLayerIndex = selectedLayerIndex;
     _layerManager.activeLayerIndex = selectedLayerIndex;
   }
+
+  LayerManager get layerManager => _layerManager;
 
   static SourceNode _createInitialGraph(int width, int height) {
     return SourceNode(
@@ -49,7 +55,7 @@ class CanvasController {
       path: [startingPoint],
     );
 
-    currentLayer.overNode!.wrapInput(newPathNode);
+    currentLayer.rootNode.insertAbove(newPathNode);
     _activePathNode = newPathNode;
   }
 

@@ -10,40 +10,48 @@ class _DrawingState {
   final GColor selectedColor;
   final int selectedColorIndex;
   final Tool selectedTool;
+  final List<Layer> layers;
+  final int selectedLayerIndex;
 
   const _DrawingState({
     required this.selectedColor,
     required this.selectedColorIndex,
     required this.selectedTool,
+    required this.layers,
+    required this.selectedLayerIndex,
   });
 
   _DrawingState copyWith({
     GColor? selectedColor,
     int? selectedColorIndex,
     Tool? selectedTool,
+    List<Layer>? layers,
+    int? selectedLayerIndex,
   }) {
     return _DrawingState(
       selectedColor: selectedColor ?? this.selectedColor,
       selectedColorIndex: selectedColorIndex ?? this.selectedColorIndex,
       selectedTool: selectedTool ?? this.selectedTool,
+      layers: layers ?? this.layers,
+      selectedLayerIndex: selectedLayerIndex ?? this.selectedLayerIndex,
     );
   }
 }
 
 class _DrawingStateNotifier extends Notifier<_DrawingState> {
-  Tool _createToolFromType(ToolType type) {
-    final canvasController = ref.read(canvasControllerProvider);
+  CanvasController get _canvasController => ref.read(canvasControllerProvider);
 
+  Tool _createToolFromType(ToolType type) {
     if (type == ToolType.pencil) {
       return PencilTool(
         getColor: () => state.selectedColor,
-        canvasController: canvasController,
+        canvasController: _canvasController,
         isEraser: false,
       );
     } else {
       return PencilTool(
         getColor: () => state.selectedColor,
-        canvasController: canvasController,
+        canvasController: _canvasController,
         isEraser: true,
       );
     }
@@ -51,11 +59,28 @@ class _DrawingStateNotifier extends Notifier<_DrawingState> {
 
   @override
   _DrawingState build() {
+    final canvasController = ref.read(canvasControllerProvider);
+
     return _DrawingState(
       selectedColor: GColors.black,
       selectedColorIndex: 0,
       selectedTool: _createToolFromType(ToolType.pencil),
+      layers: canvasController.layers,
+      selectedLayerIndex: canvasController.selectedLayerIndex,
     );
+  }
+
+  void notifyLayersUpdated() {
+    _canvasController.layerManager.populateLayers();
+
+    state = state.copyWith(
+      layers: _canvasController.layers,
+    );
+  }
+
+  void createLayer() {
+    _canvasController.addLayer();
+    notifyLayersUpdated();
   }
 
   void changeColor(GColor newColor) {
@@ -69,6 +94,11 @@ class _DrawingStateNotifier extends Notifier<_DrawingState> {
   void changeToolType(ToolType newToolType) {
     state = state.copyWith(selectedTool: _createToolFromType(newToolType));
   }
+
+  void changeLayerIndex(int newLayerIndex) {
+    _canvasController.selectedLayerIndex = newLayerIndex;
+    state = state.copyWith(selectedLayerIndex: newLayerIndex);
+  }
 }
 
 final drawingStateProvider =
@@ -77,5 +107,5 @@ final drawingStateProvider =
 });
 
 final canvasControllerProvider = Provider<CanvasController>((ref) {
-  return CanvasController(width: 100, height: 100);
+  return CanvasController(width: 1000, height: 1000);
 });

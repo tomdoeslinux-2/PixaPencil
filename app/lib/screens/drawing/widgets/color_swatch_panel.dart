@@ -72,7 +72,7 @@ class ColorSwatchPanel extends ConsumerWidget {
           border: Border(
             top: BorderSide(
               color: Color(0xFFE8E8E8),
-              width: 2,
+              width: 1,
             ),
           ),
         ),

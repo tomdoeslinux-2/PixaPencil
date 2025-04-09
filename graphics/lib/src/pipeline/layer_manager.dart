@@ -25,7 +25,7 @@ class LayerManager {
   int _activeLayerIndex = -1;
 
   LayerManager(this.renderingEngine) {
-    _populateLayers();
+    populateLayers();
   }
 
   int get activeLayerIndex => _activeLayerIndex;
@@ -38,17 +38,31 @@ class LayerManager {
   }
 
   void _optimizeGraphForActiveLayer() {
+    for (final layer in layers) {
+      layer.overNode!.isPassthrough = false;
+      layer.overNode!.cache.clear();
+    }
+
     GBitmap? compositedAbove;
     final targetLayer = layers[_activeLayerIndex];
     final targetLayerNode = targetLayer.overNode!;
 
     if (targetLayerNode.parentNode != null) {
+      final isInputFromBottommostLayer =
+          (targetLayerNode.inputNode is! OverlayNode &&
+              targetLayerNode.inputNode == targetLayer.rootNode);
+
       for (final layer in layers.reversed) {
         if (layer == targetLayer) {
           break;
         }
 
-        if (layer.overNode != targetLayerNode.parentNode) {
+        if (isInputFromBottommostLayer && targetLayerNode != layer.overNode) {
+          layer.overNode!.isPassthrough = true;
+        }
+
+        if (!isInputFromBottommostLayer &&
+            layer.overNode != targetLayerNode.parentNode) {
           layer.overNode!.isPassthrough = true;
         }
 
@@ -61,21 +75,36 @@ class LayerManager {
             GBitmap.overlay(layer.rootNode.process(null), compositedAbove);
       }
 
-      (targetLayerNode.parentNode as OverlayNode)
+      final target = isInputFromBottommostLayer
+          ? targetLayerNode
+          : targetLayerNode.parentNode;
+      (target as OverlayNode)
           .cache
           .store(kOverlayNodeCacheKeyOverlay, compositedAbove!);
-    }
 
-    if (targetLayerNode.inputNode is OverlayNode) {
+      if (targetLayerNode.inputNode is! OverlayNode &&
+          targetLayerNode.auxNode == targetLayer.rootNode) {
+        targetLayerNode.cache.store(kOverlayNodeCacheKeyBackground,
+            targetLayerNode.inputNode!.process(null));
+      }
+    } else if (targetLayerNode.inputNode is OverlayNode) {
       final compositedBelow =
           targetLayerNode.inputNode!.process(renderingEngine.outputRoi);
       (targetLayerNode.inputNode as OverlayNode)
           .cache
           .store(kOverlayNodeCacheKeyResult, compositedBelow);
-    } 
+    } else if (targetLayerNode.inputNode == targetLayer.rootNode) {
+      targetLayerNode
+          .cache
+          .store(kOverlayNodeCacheKeyOverlay, targetLayerNode.auxNode!.process(null));
+    } else if (targetLayerNode.auxNode == targetLayer.rootNode) {
+      targetLayerNode
+          .cache
+          .store(kOverlayNodeCacheKeyBackground, targetLayerNode.inputNode!.process(null));
+    }
   }
 
-  void _populateLayers() {
+  void populateLayers() {
     layers.clear();
 
     final layerNodes = <Node>[];
@@ -125,7 +154,7 @@ class LayerManager {
     }
 
     renderingEngine.populateNodeCache();
-    _populateLayers();
+    populateLayers();
   }
 
   void removeLayer(int layerIndex) {
@@ -149,6 +178,6 @@ class LayerManager {
     }
 
     renderingEngine.populateNodeCache();
-    _populateLayers();
+    populateLayers();
   }
 }
