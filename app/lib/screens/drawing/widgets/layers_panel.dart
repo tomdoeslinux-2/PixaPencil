@@ -43,8 +43,10 @@ class LayersPanel extends ConsumerWidget {
                         ),
                         child: RawImage(
                           image: snapshot.data,
-                          width: 61,
-                          height: 61,
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.none,
+                          isAntiAlias: false,
+                          colorBlendMode: BlendMode.src,
                         ),
                       ),
                     ),
