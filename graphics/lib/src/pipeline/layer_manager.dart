@@ -38,6 +38,7 @@ class LayerManager {
   }
 
   void _optimizeGraphForActiveLayer() {
+    print('optimizing');
     for (final layer in layers) {
       layer.overNode!.isPassthrough = false;
       layer.overNode!.cache.clear();

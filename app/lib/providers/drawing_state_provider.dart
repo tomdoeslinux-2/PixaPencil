@@ -1,4 +1,6 @@
 import 'package:app/models/canvas_controller.dart';
+import 'package:app/models/color_picker_tool.dart';
+import 'package:app/models/eraser_tool.dart';
 import 'package:app/models/pencil_tool.dart';
 import 'package:app/models/tool_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,18 +44,23 @@ class _DrawingStateNotifier extends Notifier<_DrawingState> {
   CanvasController get _canvasController => ref.read(canvasControllerProvider);
 
   Tool _createToolFromType(ToolType type) {
-    if (type == ToolType.pencil) {
-      return PencilTool(
-        getColor: () => state.selectedColor,
-        canvasController: _canvasController,
-        isEraser: false,
-      );
-    } else {
-      return PencilTool(
-        getColor: () => state.selectedColor,
-        canvasController: _canvasController,
-        isEraser: true,
-      );
+    switch (type) {
+      case ToolType.pencil:
+        return PencilTool(
+          getColor: () => state.selectedColor,
+          canvasController: _canvasController,
+        );
+      case ToolType.eraser:
+        return EraserTool(
+          canvasController: _canvasController,
+        );
+      case ToolType.colorPicker:
+        return ColorPickerTool(
+          canvasController: _canvasController,
+          onColorSelected: (color) {
+            changeColor(color);
+          },
+        );
     }
   }
 
@@ -107,5 +114,5 @@ final drawingStateProvider =
 });
 
 final canvasControllerProvider = Provider<CanvasController>((ref) {
-  return CanvasController(width: 1000, height: 1000);
+  return CanvasController(width: 50, height: 50);
 });

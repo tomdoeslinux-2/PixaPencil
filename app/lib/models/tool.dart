@@ -8,8 +8,6 @@ abstract class Tool {
 
   Tool({required this.canvasController});
 
-  ToolType get toolType;
-
   void onTouchDown(GPoint point);
   void onTouchMove(GPoint point);
   void onTouchUp();

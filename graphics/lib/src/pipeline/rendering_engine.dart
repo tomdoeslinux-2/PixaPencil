@@ -18,13 +18,7 @@ class RenderingEngine {
   }
 
   GBitmap render() {
-    final stopwatch = Stopwatch()..start();
-
     final bmp = rootNode.process(outputRoi);
-
-    stopwatch.stop();
-    final elapsedMs = stopwatch.elapsedMilliseconds;
-    print('Render completed in ${elapsedMs}ms');
 
     return bmp;
   }

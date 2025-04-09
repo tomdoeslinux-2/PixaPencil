@@ -20,6 +20,8 @@ class CanvasController {
     _layerManager = LayerManager(_engine);
   }
 
+  Layer get selectedLayer => layers[_selectedLayerIndex];
+
   Node get rootNode => _engine.rootNode;
 
   List<Layer> get layers => _layerManager.layers;

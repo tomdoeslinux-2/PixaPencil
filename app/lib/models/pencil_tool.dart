@@ -5,21 +5,16 @@ import 'package:app/models/tool_type.dart';
 import 'package:graphics/graphics.dart';
 
 class PencilTool extends Tool {
-  final bool isEraser;
   final GColor Function() getColor;
 
   PencilTool({
-    this.isEraser = false,
     required this.getColor,
     required super.canvasController,
   });
 
   @override
   void onTouchDown(GPoint point) {
-    canvasController.beginPath(
-      isEraser ? GColors.transparent : getColor(),
-      point,
-    );
+    canvasController.beginPath(getColor(), point);
   }
 
   @override
@@ -31,7 +26,4 @@ class PencilTool extends Tool {
   void onTouchUp() {
     canvasController.endPath();
   }
-
-  @override
-  ToolType get toolType => !isEraser ? ToolType.pencil : ToolType.eraser;
 }

@@ -1,3 +1,6 @@
+import 'package:app/models/color_picker_tool.dart';
+import 'package:app/models/eraser_tool.dart';
+import 'package:app/models/pencil_tool.dart';
 import 'package:app/models/tool_type.dart';
 import 'package:app/providers/drawing_state_provider.dart';
 import 'package:app/widgets/svg_icon.dart';
@@ -29,17 +32,17 @@ class ToolPanel extends ConsumerWidget {
         children: [
           ToolButton(
             icon: const SvgIcon('assets/icons/edit_m3.svg'),
-            isSelected: selectedTool.toolType == ToolType.pencil,
+            isSelected: selectedTool is PencilTool,
             onTap: () => ref.read(drawingStateProvider.notifier).changeToolType(ToolType.pencil),
           ),
           ToolButton(
             icon: const SvgIcon('assets/icons/eraser_m3.svg'),
-            isSelected: selectedTool.toolType == ToolType.eraser,
+            isSelected: selectedTool is EraserTool,
             onTap: () => ref.read(drawingStateProvider.notifier).changeToolType(ToolType.eraser),
           ),
           ToolButton(
             icon: const SvgIcon('assets/icons/colorize_m3.svg'),
-            isSelected: selectedTool.toolType == ToolType.colorPicker,
+            isSelected: selectedTool is ColorPickerTool,
             onTap: () => ref.read(drawingStateProvider.notifier).changeToolType(ToolType.colorPicker),
           ),
         ],
