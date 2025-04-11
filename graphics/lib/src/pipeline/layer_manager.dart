@@ -22,15 +22,40 @@ class Layer {
 class LayerManager {
   final RenderingEngine renderingEngine;
   var layers = <Layer>[];
-  int _activeLayerIndex = -1;
 
-  LayerManager(this.renderingEngine) {
+  final bool enableDynamicLayerSwitchingOptimization;
+  int _activeLayerIndex = 0;
+
+  LayerManager(this.renderingEngine,
+      {this.enableDynamicLayerSwitchingOptimization = false}) {
     populateLayers();
+    _optimizeGraphForActiveLayer();
   }
 
-  int get activeLayerIndex => _activeLayerIndex;
+  int get activeLayerIndex {
+    if (!enableDynamicLayerSwitchingOptimization) {
+      throw StateError(
+          'Accessing activeLayerIndex is not allowed when dynamic optimization is disabled');
+    }
+    return _activeLayerIndex;
+  }
 
   set activeLayerIndex(int layerIndex) {
+    if (!enableDynamicLayerSwitchingOptimization) {
+      throw StateError(
+          'Modifying activeLayerIndex is not allowed when dynamic optimization is disabled');
+    }
+
+    if (layerIndex < 0 || layerIndex >= layers.length) {
+      throw RangeError.index(
+        layerIndex,
+        layers,
+        'activeLayerIndex',
+        'Layer index is out of bounds',
+        layers.length,
+      );
+    }
+
     if (layerIndex == _activeLayerIndex) return;
 
     _activeLayerIndex = layerIndex;
@@ -38,7 +63,10 @@ class LayerManager {
   }
 
   void _optimizeGraphForActiveLayer() {
-    print('optimizing');
+    if (!enableDynamicLayerSwitchingOptimization || layers.length == 1) {
+      return;
+    }
+
     for (final layer in layers) {
       layer.overNode!.isPassthrough = false;
       layer.overNode!.cache.clear();
@@ -95,13 +123,11 @@ class LayerManager {
           .cache
           .store(kOverlayNodeCacheKeyResult, compositedBelow);
     } else if (targetLayerNode.inputNode == targetLayer.rootNode) {
-      targetLayerNode
-          .cache
-          .store(kOverlayNodeCacheKeyOverlay, targetLayerNode.auxNode!.process(null));
+      targetLayerNode.cache.store(
+          kOverlayNodeCacheKeyOverlay, targetLayerNode.auxNode!.process(null));
     } else if (targetLayerNode.auxNode == targetLayer.rootNode) {
-      targetLayerNode
-          .cache
-          .store(kOverlayNodeCacheKeyBackground, targetLayerNode.inputNode!.process(null));
+      targetLayerNode.cache.store(kOverlayNodeCacheKeyBackground,
+          targetLayerNode.inputNode!.process(null));
     }
   }
 
@@ -156,6 +182,7 @@ class LayerManager {
 
     renderingEngine.populateNodeCache();
     populateLayers();
+    _optimizeGraphForActiveLayer();
   }
 
   void removeLayer(int layerIndex) {
@@ -180,5 +207,29 @@ class LayerManager {
 
     renderingEngine.populateNodeCache();
     populateLayers();
+    _optimizeGraphForActiveLayer();
+  }
+
+  // todo add toggle layer visibility
+
+  void reorderLayer(int sourceIndex, int destinationIndex) {
+    final overlayNodesToShift = layers
+        .whereIndexed(
+            (index, _) => index >= sourceIndex && index <= destinationIndex)
+        .map((layer) => layer.overNode);
+
+    OverlayNode? prevOverNode;
+    for (final node in overlayNodesToShift) {
+      if (prevOverNode == null) {
+        prevOverNode = node;
+        continue;
+      }
+
+      final prevAux = node!.auxNode;
+      node.auxNode = prevOverNode.auxNode;
+      prevOverNode.auxNode = prevAux;
+
+      prevOverNode = node;
+    }
   }
 }

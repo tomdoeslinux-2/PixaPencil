@@ -244,6 +244,12 @@ class GBitmap {
     return outputBitmap;
   }
 
+  GBitmap clone() {
+    final clonedPixels = Uint8List.fromList(pixels);
+
+    return GBitmap.fromPixels(clonedPixels, width, height, config: config);
+  }
+
   GRect toRect() {
     return GRect(x: 0, y: 0, width: width, height: height);
   }

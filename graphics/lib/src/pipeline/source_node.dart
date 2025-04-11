@@ -9,7 +9,7 @@ class SourceNode extends Node {
 
   @override
   GBitmap operation(GRect? roi) {
-    return roi != null ? source.crop(roi) : source;
+    return roi != null ? source.crop(roi).clone() : source.clone();
   }
 
   @override

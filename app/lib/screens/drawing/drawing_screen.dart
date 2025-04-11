@@ -24,6 +24,12 @@ class CanvasPainter extends CustomPainter {
 
   late Rect _artboardRect;
   final _artboardPaint = Paint()..color = Colors.white;
+  final _artboardStrokePaint = Paint()
+    ..color = const Color(
+      0xFFD9D9D9,
+    )
+    ..strokeWidth = 1
+    ..style = PaintingStyle.stroke;
 
   CanvasPainter({
     required this.image,
@@ -68,6 +74,7 @@ class CanvasPainter extends CustomPainter {
       Paint()..color = const Color(0xFFEBEBEB),
     );
     canvas.drawRect(_artboardRect, _artboardPaint);
+    canvas.drawRect(_artboardRect, _artboardStrokePaint);
     canvas.drawImageRect(image, _getSrcRect(), _artboardRect, Paint());
   }
 
@@ -76,14 +83,14 @@ class CanvasPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-class DrawingScreen extends ConsumerStatefulWidget {
-  const DrawingScreen({super.key});
+class DrawingCanvasArea extends ConsumerStatefulWidget {
+  const DrawingCanvasArea({super.key});
 
   @override
-  ConsumerState<DrawingScreen> createState() => _DrawingScreenState();
+  ConsumerState<DrawingCanvasArea> createState() => _DrawingCanvasAreaState();
 }
 
-class _DrawingScreenState extends ConsumerState<DrawingScreen> {
+class _DrawingCanvasAreaState extends ConsumerState<DrawingCanvasArea> {
   late final CanvasController _canvasController;
   ui.Image? _canvasOutput;
 
@@ -91,7 +98,8 @@ class _DrawingScreenState extends ConsumerState<DrawingScreen> {
   void initState() {
     super.initState();
     _canvasController = ref.read(canvasControllerProvider);
-    _canvasController.addLayer();
+    // _canvasController.addLayer();
+    _canvasController.addListener(() => _updateCanvasOutput());
     _updateCanvasOutput();
   }
 
@@ -130,46 +138,60 @@ class _DrawingScreenState extends ConsumerState<DrawingScreen> {
       panOffset: const Offset(1.0, 1.0),
     );
 
+    return Container(
+      color: Colors.grey,
+      child: GestureDetector(
+        onScaleStart: (details) {
+          final selectedTool = ref.read(drawingStateProvider).selectedTool;
+          final point = _convertLocalToBitmapCoordinates(
+              details.localFocalPoint, canvasPainter.artboardRect);
+
+          selectedTool.onTouchDown(point);
+          _updateCanvasOutput();
+          ref.read(drawingStateProvider.notifier).notifyLayersUpdated();
+        },
+        onScaleUpdate: (details) {
+          final selectedTool = ref.read(drawingStateProvider).selectedTool;
+          final point = _convertLocalToBitmapCoordinates(
+              details.localFocalPoint, canvasPainter.artboardRect);
+
+          selectedTool.onTouchMove(point);
+          _updateCanvasOutput();
+          ref.read(drawingStateProvider.notifier).notifyLayersUpdated();
+        },
+        child: CustomPaint(
+          painter: canvasPainter,
+          size: Size.infinite,
+        ),
+      ),
+    );
+  }
+}
+
+class DrawingScreen extends ConsumerStatefulWidget {
+  const DrawingScreen({super.key});
+
+  @override
+  ConsumerState<DrawingScreen> createState() => _DrawingScreenState();
+}
+
+class _DrawingScreenState extends ConsumerState<DrawingScreen> {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const DrawingAppBar(),
       body: SafeArea(
         child: Container(
           color: Colors.white,
-          child: Column(
+          child: const Column(
             children: [
-              const ColorSwatchPanel(),
+              ColorSwatchPanel(),
               Expanded(
-                child: Container(
-                  color: Colors.grey,
-                  child: GestureDetector(
-                    onScaleStart: (details) {
-                      final selectedTool = ref.read(drawingStateProvider).selectedTool;
-                      final point = _convertLocalToBitmapCoordinates(
-                          details.localFocalPoint, canvasPainter.artboardRect);
-
-                      selectedTool.onTouchDown(point);
-                      _updateCanvasOutput();
-                      ref.read(drawingStateProvider.notifier).notifyLayersUpdated();
-                    },
-                    onScaleUpdate: (details) {
-                      final selectedTool = ref.read(drawingStateProvider).selectedTool;
-                      final point = _convertLocalToBitmapCoordinates(
-                          details.localFocalPoint, canvasPainter.artboardRect);
-
-                      selectedTool.onTouchMove(point);
-                      _updateCanvasOutput();
-                      ref.read(drawingStateProvider.notifier).notifyLayersUpdated();
-                    },
-                    child: CustomPaint(
-                      painter: canvasPainter,
-                      size: Size.infinite,
-                    ),
-                  ),
-                ),
+                child: DrawingCanvasArea(),
               ),
-              const LayersPanel(),
-              const ToolPanel(),
+              LayersPanelExpanded(),
+              ToolPanel(),
             ],
           ),
         ),

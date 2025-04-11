@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:graphics/graphics.dart';
 
@@ -11,6 +12,18 @@ class CanvasController {
   final RenderingEngine _engine;
   late final LayerManager _layerManager;
   PathNode? _activePathNode;
+
+  final List<VoidCallback> _listeners = [];
+
+  void addListener(VoidCallback listener) {
+    _listeners.add(listener);
+  }
+
+  void notifyListeners() {
+    for (final listener in _listeners) {
+      listener();
+    }
+  }
 
   CanvasController({required this.width, required this.height})
       : _engine = RenderingEngine(
@@ -65,6 +78,18 @@ class CanvasController {
     if (_activePathNode == null) beginPath(GColors.black, point);
 
     _activePathNode!.addPoint(point);
+  }
+
+  void toggleLayerVisibility(int layerIndex) {
+    final overNode = selectedLayer.overNode;
+
+    if (overNode!.inputNode == selectedLayer.rootNode) {
+      overNode.isInputNodePassthrough = !overNode.isInputNodePassthrough;
+    } else {
+      overNode.isAuxNodePassthrough = !overNode.isAuxNodePassthrough;
+    }
+
+    notifyListeners();
   }
 
   void endPath() {
