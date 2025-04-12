@@ -9,7 +9,7 @@ import 'overlay_node.dart';
 class Layer {
   final String name;
   final Node rootNode;
-  final OverlayNode? overNode;
+  final OverlayNode? overNode; // todo shouldn't be nullable
 
   const Layer(this.name, this.rootNode, this.overNode);
 
@@ -213,23 +213,33 @@ class LayerManager {
   // todo add toggle layer visibility
 
   void reorderLayer(int sourceIndex, int destinationIndex) {
-    final overlayNodesToShift = layers
+    final layersToShift = layers
         .whereIndexed(
-            (index, _) => index >= sourceIndex && index <= destinationIndex)
-        .map((layer) => layer.overNode);
+            (index, _) => index >= sourceIndex && index <= destinationIndex).toList();
 
-    OverlayNode? prevOverNode;
-    for (final node in overlayNodesToShift) {
-      if (prevOverNode == null) {
-        prevOverNode = node;
+    Layer? prevLayer;
+
+    final firstLayer = layersToShift.first;
+    if (firstLayer.overNode!.inputNode == firstLayer.rootNode) {
+      final curInput = firstLayer.overNode!.auxNode;
+      firstLayer.overNode!.auxNode = firstLayer.overNode!.inputNode;
+      firstLayer.overNode!.inputNode = curInput;
+      prevLayer = layersToShift[1];
+      layersToShift.removeRange(0, 2);
+    }
+
+    for (final layer in layersToShift) {
+      if (prevLayer == null) {
+        prevLayer = layer;
         continue;
       }
 
-      final prevAux = node!.auxNode;
-      node.auxNode = prevOverNode.auxNode;
-      prevOverNode.auxNode = prevAux;
+      final curAux = layer.overNode!.auxNode;
+      final newAux = prevLayer.overNode!.auxNode;
+      layer.overNode!.auxNode = newAux;
+      prevLayer.overNode!.auxNode = curAux;
 
-      prevOverNode = node;
+      prevLayer = layer;
     }
   }
 }

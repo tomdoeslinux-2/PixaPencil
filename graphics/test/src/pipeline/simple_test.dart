@@ -25,6 +25,7 @@ void main() async {
   layerManager.addLayer(SourceNode(source: layer5Image));
   
   await exportGraphToPNG(engine.rootNode, 'before_reordering');
-  layerManager.reorderLayer(1, 4);
+  layerManager.reorderLayer(0, 4);
   await exportGraphToPNG(engine.rootNode, 'after_reordering');
+  await saveBitmapToLocalDir(engine.render(), 'after_reordering_out.png');
 }
