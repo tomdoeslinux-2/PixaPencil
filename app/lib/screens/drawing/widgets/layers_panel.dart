@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:app/models/bitmap_extensions.dart';
 import 'package:app/providers/drawing_state_provider.dart';
+import 'package:app/widgets/svg_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -52,15 +53,19 @@ class LayerCoverImage extends StatelessWidget {
 class LayerListItem extends ConsumerWidget {
   final ui.Image? layerImage;
   final bool isSelected;
+  final bool isVisibilityOn;
   final VoidCallback onTap;
   final VoidCallback onToggleLayerVisibility;
+  final VoidCallback onDeleteLayer;
 
   const LayerListItem({
     super.key,
     required this.layerImage,
     required this.isSelected,
+    required this.isVisibilityOn,
     required this.onTap,
     required this.onToggleLayerVisibility,
+    required this.onDeleteLayer,
   });
 
   @override
@@ -86,9 +91,18 @@ class LayerListItem extends ConsumerWidget {
               ),
               const Text('Layer 1'),
               const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.remove_red_eye),
-                onPressed: onToggleLayerVisibility,
+              Row(
+                spacing: 8,
+                children: [
+                  IconButton(
+                    icon: isVisibilityOn ? const SvgIcon('assets/icons/visibility_m3.svg') : const SvgIcon('assets/icons/visibility_off_m3.svg'),
+                    onPressed: onToggleLayerVisibility,
+                  ),
+                  IconButton(
+                    onPressed: onDeleteLayer,
+                    icon: const Icon(Icons.delete),
+                  ),
+                ],
               ),
             ],
           ),
@@ -111,29 +125,39 @@ class LayersPanelExpanded extends ConsumerWidget {
       height: 282,
       child: ListView.builder(
         itemBuilder: (context, index) {
-          return FutureBuilder<ui.Image>(
-            future: layers[index].rootNode.process(null).toFlutterImage(),
-            builder: (context, snapshot) {
-              return Center(
-                child: LayerListItem(
-                  layerImage: snapshot.data,
-                  isSelected: index == selectedLayerIndex,
-                  onTap: () {
-                    ref
-                        .read(drawingStateProvider.notifier)
-                        .changeLayerIndex(index);
-                  },
-                  onToggleLayerVisibility: () {
-                    ref
-                        .read(canvasControllerProvider)
-                        .toggleLayerVisibility(index);
-                  },
-                ),
-              );
-            },
-          );
+          if (index < layers.length) {
+            return FutureBuilder<ui.Image>(
+              future: layers[index].rootNode.process(null).toFlutterImage(),
+              builder: (context, snapshot) {
+                return Center(
+                  child: LayerListItem(
+                    layerImage: snapshot.data,
+                    isSelected: index == selectedLayerIndex,
+                    isVisibilityOn: layers[index].isVisible,
+                    onTap: () {
+                      ref
+                          .read(drawingStateProvider.notifier)
+                          .changeLayerIndex(index);
+                    },
+                    onToggleLayerVisibility: () {
+                      ref
+                          .read(drawingStateProvider.notifier)
+                          .toggleLayerVisibility(index);
+                    },
+                    onDeleteLayer: () {
+                      ref.read(drawingStateProvider.notifier).deleteLayer(index);
+                    },
+                  ),
+                );
+              },
+            );
+          }
+
+          return AddLayerButton(onTap: () {
+            ref.read(drawingStateProvider.notifier).createLayer();
+          });
         },
-        itemCount: layers.length,
+        itemCount: layers.length + 1,
       ),
     );
   }
@@ -180,27 +204,10 @@ class LayersPanel extends ConsumerWidget {
           }
 
           return Center(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () {
-                  ref.read(drawingStateProvider.notifier).createLayer();
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  width: 61,
-                  height: 61,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFFCFCFCF),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Icon(Icons.add),
-                ),
-              ),
+            child: AddLayerButton(
+              onTap: () {
+                ref.read(drawingStateProvider.notifier).createLayer();
+              },
             ),
           );
         },
@@ -208,6 +215,36 @@ class LayersPanel extends ConsumerWidget {
           width: 9,
         ),
         itemCount: layers.length + 1,
+      ),
+    );
+  }
+}
+
+class AddLayerButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const AddLayerButton({super.key, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Container(
+          alignment: Alignment.center,
+          width: 61,
+          height: 61,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: const Color(0xFFCFCFCF),
+              width: 1,
+            ),
+          ),
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

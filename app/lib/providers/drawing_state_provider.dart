@@ -90,6 +90,16 @@ class _DrawingStateNotifier extends Notifier<_DrawingState> {
     notifyLayersUpdated();
   }
 
+  void deleteLayer(int layerIndex) {
+    _canvasController.deleteLayer(layerIndex);
+    notifyLayersUpdated();
+  }
+
+  void toggleLayerVisibility(int layerIndex) {
+    _canvasController.toggleLayerVisibility(layerIndex);
+    notifyLayersUpdated();
+  }
+
   void changeColor(GColor newColor) {
     state = state.copyWith(selectedColor: newColor);
   }

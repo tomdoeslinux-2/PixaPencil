@@ -30,7 +30,8 @@ class CanvasController {
           _createInitialGraph(width, height),
           outputRoi: GRect.fromLTRB(0, 0, width, height),
         ) {
-    _layerManager = LayerManager(_engine);
+    _layerManager =
+        LayerManager(_engine, enableDynamicLayerSwitchingOptimization: true);
   }
 
   Layer get selectedLayer => layers[_selectedLayerIndex];
@@ -62,6 +63,16 @@ class CanvasController {
     );
   }
 
+  void deleteLayer(int layerIndex) {
+    _layerManager.deleteLayer(layerIndex);
+    notifyListeners();
+  }
+
+  void toggleLayerVisibility(int layerIndex) {
+    _layerManager.toggleLayerVisibility(layerIndex);
+    notifyListeners();
+  }
+
   void beginPath(GColor color, GPoint startingPoint) {
     final currentLayer = _layerManager.layers[_selectedLayerIndex];
 
@@ -70,26 +81,13 @@ class CanvasController {
       path: [startingPoint],
     );
 
-    currentLayer.rootNode.insertAbove(newPathNode);
+    currentLayer.rootNode.insertAbove(newPathNode, _engine);
     _activePathNode = newPathNode;
   }
 
   void addPointToPath(GPoint point) {
     if (_activePathNode == null) beginPath(GColors.black, point);
-
     _activePathNode!.addPoint(point);
-  }
-
-  void toggleLayerVisibility(int layerIndex) {
-    final overNode = selectedLayer.overNode;
-
-    if (overNode!.inputNode == selectedLayer.rootNode) {
-      overNode.isInputNodePassthrough = !overNode.isInputNodePassthrough;
-    } else {
-      overNode.isAuxNodePassthrough = !overNode.isAuxNodePassthrough;
-    }
-
-    notifyListeners();
   }
 
   void endPath() {

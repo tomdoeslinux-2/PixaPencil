@@ -98,7 +98,6 @@ class _DrawingCanvasAreaState extends ConsumerState<DrawingCanvasArea> {
   void initState() {
     super.initState();
     _canvasController = ref.read(canvasControllerProvider);
-    // _canvasController.addLayer();
     _canvasController.addListener(() => _updateCanvasOutput());
     _updateCanvasOutput();
   }

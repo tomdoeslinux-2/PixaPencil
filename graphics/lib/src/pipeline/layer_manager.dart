@@ -9,9 +9,10 @@ import 'overlay_node.dart';
 class Layer {
   final String name;
   final Node rootNode;
-  final OverlayNode? overNode; // todo shouldn't be nullable
+  final OverlayNode? overNode;
+  bool isVisible = true;
 
-  const Layer(this.name, this.rootNode, this.overNode);
+  Layer(this.name, this.rootNode, this.overNode);
 
   @override
   String toString() {
@@ -162,6 +163,13 @@ class LayerManager {
     for (final (indx, node) in layerNodes.indexed) {
       final layer = Layer("Layer ${layerNodes.length - indx}", node,
           node.parentNode as OverlayNode);
+
+      // todo update this shit code
+      if ((node.parentNode as OverlayNode).isAuxNodePassthrough && node.parentNode!.auxNode == node) {
+        layer.isVisible = !(node.parentNode as OverlayNode).isAuxNodePassthrough;
+      } else if ((node.parentNode as OverlayNode).isInputNodePassthrough && node.parentNode!.inputNode == node) {
+        layer.isVisible = !(node.parentNode as OverlayNode).isInputNodePassthrough;
+      }
       layers.insert(0, layer);
     }
   }
@@ -184,15 +192,12 @@ class LayerManager {
       parent?.inputNode = overlayNode;
     }
 
-    print('before');
-    print(layers.first.overNode?.parentNode);
-
     renderingEngine.populateNodeCache();
     populateLayers();
     _optimizeGraphForActiveLayer();
   }
 
-  void removeLayer(int layerIndex) {
+  void deleteLayer(int layerIndex) {
     final layerNode = layers[layerIndex].rootNode;
     final parent = layerNode.parentNode;
 
@@ -248,5 +253,18 @@ class LayerManager {
 
       prevLayer = layer;
     }
+  }
+
+  void toggleLayerVisibility(int layerIndex) {
+    final layerToToggle = layers[layerIndex];
+    final overNode = layerToToggle.overNode;
+
+    if (overNode!.inputNode == layerToToggle.rootNode) {
+      overNode.isInputNodePassthrough = !overNode.isInputNodePassthrough;
+    } else {
+      overNode.isAuxNodePassthrough = !overNode.isAuxNodePassthrough;
+    }
+
+    layerToToggle.isVisible = !layerToToggle.isVisible;
   }
 }

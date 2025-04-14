@@ -126,7 +126,7 @@ void main() {
       layerManager.addLayer(layerA);
       layerManager.addLayer(layerB);
 
-      layerManager.removeLayer(2);
+      layerManager.deleteLayer(2);
 
       final outputBitmap = layerGraph.render();
       final expectedBitmap =
@@ -153,7 +153,7 @@ void main() {
       layerManager.addLayer(layerA);
       layerManager.addLayer(layerB);
 
-      layerManager.removeLayer(1);
+      layerManager.deleteLayer(1);
 
       final outputBitmap = layerGraph.render();
       final expectedBitmap =
@@ -181,7 +181,7 @@ void main() {
       layerManager.addLayer(layerB);
       layerManager.addLayer(layerC);
 
-      layerManager.removeLayer(2);
+      layerManager.deleteLayer(2);
 
       final outputBitmap = layerGraph.render();
       final expectedBitmap =

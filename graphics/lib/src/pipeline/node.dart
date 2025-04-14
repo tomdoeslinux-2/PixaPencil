@@ -1,3 +1,4 @@
+import "../../graphics.dart";
 import "../core/bitmap.dart";
 import "../core/rect.dart";
 
@@ -19,13 +20,15 @@ abstract class Node {
     _auxNode?.parentNode = this;
   }
 
-  void insertAbove(Node node) {
+  void insertAbove(Node node, RenderingEngine engine) {
     final curParent = parentNode;
 
     if (curParent?.inputNode == this) {
       curParent!.inputNode = node;
     } else if (curParent?.auxNode == this) {
       curParent!.auxNode = node;
+    } else if (curParent == null) {
+      engine.rootNode = node;
     }
 
     node.inputNode = this;
@@ -55,14 +58,12 @@ abstract class Node {
 
   GBitmap process(GRect? roi) {
     if (isPassthrough && inputNode != null) {
-      print('$id is passthrough');
       return inputNode!.process(roi);
     } else if (isPassthrough) {
       throw ArgumentError(
           'Node marked as passthrough but has no inputNode to forward processing to');
     }
 
-    print('$id is NOT passthrough');
     final bitmap = operation(roi);
 
     return bitmap;

@@ -85,6 +85,8 @@ flutter:
     - assets/icons/edit_m3.svg
     - assets/icons/eraser_m3.svg
     - assets/icons/colorize_m3.svg
+    - assets/icons/visibility_m3.svg
+    - assets/icons/visibility_off_m3.svg
 
   fonts:
     - family: Figtree
