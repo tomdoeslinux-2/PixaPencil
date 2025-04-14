@@ -116,16 +116,20 @@ class LayerManager {
         targetLayerNode.cache.store(kOverlayNodeCacheKeyBackground,
             targetLayerNode.inputNode!.process(null));
       }
-    } else if (targetLayerNode.inputNode is OverlayNode) {
+    }
+
+    if (targetLayerNode.inputNode is OverlayNode) {
       final compositedBelow =
           targetLayerNode.inputNode!.process(renderingEngine.outputRoi);
       (targetLayerNode.inputNode as OverlayNode)
           .cache
           .store(kOverlayNodeCacheKeyResult, compositedBelow);
-    } else if (targetLayerNode.inputNode == targetLayer.rootNode) {
+    }
+
+    if (targetLayerNode.inputNode == targetLayer.rootNode && targetLayerNode.parentNode == null) {
       targetLayerNode.cache.store(
           kOverlayNodeCacheKeyOverlay, targetLayerNode.auxNode!.process(null));
-    } else if (targetLayerNode.auxNode == targetLayer.rootNode) {
+    } else if (targetLayerNode.auxNode == targetLayer.rootNode && targetLayerNode.parentNode == null) {
       targetLayerNode.cache.store(kOverlayNodeCacheKeyBackground,
           targetLayerNode.inputNode!.process(null));
     }
@@ -179,6 +183,9 @@ class LayerManager {
           OverlayNode(inputNode: parent?.inputNode, auxNode: newLayer);
       parent?.inputNode = overlayNode;
     }
+
+    print('before');
+    print(layers.first.overNode?.parentNode);
 
     renderingEngine.populateNodeCache();
     populateLayers();

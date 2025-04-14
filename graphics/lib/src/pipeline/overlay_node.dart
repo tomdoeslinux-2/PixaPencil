@@ -1,3 +1,4 @@
+import 'package:graphics/graphics.dart';
 import 'package:graphics/src/core/bitmap.dart';
 import 'package:graphics/src/core/rect.dart';
 import 'package:graphics/src/pipeline/node.dart';
@@ -15,6 +16,10 @@ class Cache {
 
   bool has(String key) {
     return _cache.containsKey(key);
+  }
+
+  int size() {
+    return _cache.length;
   }
 
   void clear() {
@@ -38,6 +43,7 @@ class OverlayNode extends Node {
   @override
   GBitmap operation(GRect? roi) {
     if (_cache.has(kOverlayNodeCacheKeyResult)) {
+      print('returning result for $id');
       return _cache.retrieve(kOverlayNodeCacheKeyResult)!;
     }
 
@@ -45,12 +51,20 @@ class OverlayNode extends Node {
     GBitmap? overlayBitmap;
 
     if (!isInputNodePassthrough && inputNode != null) {
+      if (cache.has(kOverlayNodeCacheKeyBackground)) {
+        print('returning background for $id');
+      }
+
       backgroundBitmap = _cache.has(kOverlayNodeCacheKeyBackground)
           ? _cache.retrieve(kOverlayNodeCacheKeyBackground)!
           : inputNode!.process(roi);
     }
 
     if (!isAuxNodePassthrough && auxNode != null) {
+      if (cache.has(kOverlayNodeCacheKeyOverlay)) {
+        print('returning overlay for $id');
+      }
+
       overlayBitmap = _cache.has(kOverlayNodeCacheKeyOverlay)
           ? _cache.retrieve(kOverlayNodeCacheKeyOverlay)!
           : auxNode!.process(null);

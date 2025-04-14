@@ -55,12 +55,14 @@ abstract class Node {
 
   GBitmap process(GRect? roi) {
     if (isPassthrough && inputNode != null) {
+      print('$id is passthrough');
       return inputNode!.process(roi);
     } else if (isPassthrough) {
       throw ArgumentError(
           'Node marked as passthrough but has no inputNode to forward processing to');
     }
 
+    print('$id is NOT passthrough');
     final bitmap = operation(roi);
 
     return bitmap;

@@ -6,10 +6,10 @@ import '../../utils.dart';
 
 void main() {
   group("Gaussian blur tests", () {
-    Future<void> runGaussianBlurTest({required double radius}) async {
+    Future<void> runGaussianBlurTest({required int radius}) async {
       final bitmap = await loadBitmapFromImage(
           "$testAssetPath/dummy_image.jpg");
-      final blurredBitmap = gaussianBlur(bitmap, radius);
+      final blurredBitmap = gaussianBlur(bitmap, radius.toDouble());
 
       final expectedFileName = "dummy_image_blur_$radius.jpg";
       final expectedBitmap =
