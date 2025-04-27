@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:graphics/graphics.dart';
@@ -7,12 +8,11 @@ class CanvasController {
   final int width;
   final int height;
 
-  int _selectedLayerIndex = 0;
-
   final RenderingEngine _engine;
   late final LayerManager _layerManager;
   PathNode? _activePathNode;
 
+  int _selectedLayerRefIndex = 0;
   final List<VoidCallback> _listeners = [];
 
   void addListener(VoidCallback listener) {
@@ -34,20 +34,18 @@ class CanvasController {
         LayerManager(_engine, enableDynamicLayerSwitchingOptimization: true);
   }
 
-  Layer get selectedLayer => layers[_selectedLayerIndex];
+  LayerNodeReference get selectedLayerRef => layerRefs[_selectedLayerRefIndex];
+
+  List<LayerNodeReference> get layerRefs => _layerManager.layers;
 
   Node get rootNode => _engine.rootNode;
 
-  List<Layer> get layers => _layerManager.layers;
+  int get selectedLayerRefIndex => _selectedLayerRefIndex;
 
-  int get selectedLayerIndex => _selectedLayerIndex;
-
-  set selectedLayerIndex(int selectedLayerIndex) {
-    _selectedLayerIndex = selectedLayerIndex;
-    _layerManager.activeLayerIndex = selectedLayerIndex;
+  set selectedLayerRefIndex(int selectedLayerRefIndex) {
+    _selectedLayerRefIndex = selectedLayerRefIndex;
+    _layerManager.activeLayerIndex = selectedLayerRefIndex;
   }
-
-  LayerManager get layerManager => _layerManager;
 
   static SourceNode _createInitialGraph(int width, int height) {
     return SourceNode(
@@ -74,7 +72,7 @@ class CanvasController {
   }
 
   void beginPath(GColor color, GPoint startingPoint) {
-    final currentLayer = _layerManager.layers[_selectedLayerIndex];
+    final currentLayer = _layerManager.layers[_selectedLayerRefIndex];
 
     final newPathNode = PathNode(
       color: color,
@@ -85,8 +83,11 @@ class CanvasController {
     _activePathNode = newPathNode;
   }
 
+  void invalidateLayers() {
+    _layerManager.populateLayers();
+  }
+
   void addPointToPath(GPoint point) {
-    if (_activePathNode == null) beginPath(GColors.black, point);
     _activePathNode!.addPoint(point);
   }
 

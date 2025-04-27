@@ -1,46 +1,21 @@
+import 'dart:ui' as ui;
+
+import 'package:app/database/database.dart';
+import 'package:app/models/bitmap_extensions.dart';
 import 'package:app/models/canvas_controller.dart';
 import 'package:app/models/color_picker_tool.dart';
 import 'package:app/models/eraser_tool.dart';
+import 'package:app/models/layer.dart';
 import 'package:app/models/pencil_tool.dart';
 import 'package:app/models/tool_type.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphics/graphics.dart';
 
+import '../models/drawing_state.dart';
 import '../models/tool.dart';
 
-class _DrawingState {
-  final GColor selectedColor;
-  final int selectedColorIndex;
-  final Tool selectedTool;
-  final List<Layer> layers;
-  final int selectedLayerIndex;
-
-  const _DrawingState({
-    required this.selectedColor,
-    required this.selectedColorIndex,
-    required this.selectedTool,
-    required this.layers,
-    required this.selectedLayerIndex,
-  });
-
-  _DrawingState copyWith({
-    GColor? selectedColor,
-    int? selectedColorIndex,
-    Tool? selectedTool,
-    List<Layer>? layers,
-    int? selectedLayerIndex,
-  }) {
-    return _DrawingState(
-      selectedColor: selectedColor ?? this.selectedColor,
-      selectedColorIndex: selectedColorIndex ?? this.selectedColorIndex,
-      selectedTool: selectedTool ?? this.selectedTool,
-      layers: layers ?? this.layers,
-      selectedLayerIndex: selectedLayerIndex ?? this.selectedLayerIndex,
-    );
-  }
-}
-
-class _DrawingStateNotifier extends Notifier<_DrawingState> {
+class _DrawingStateNotifier extends Notifier<DrawingState> {
   CanvasController get _canvasController => ref.read(canvasControllerProvider);
 
   Tool _createToolFromType(ToolType type) {
@@ -65,39 +40,91 @@ class _DrawingStateNotifier extends Notifier<_DrawingState> {
   }
 
   @override
-  _DrawingState build() {
-    final canvasController = ref.read(canvasControllerProvider);
-
-    return _DrawingState(
+  DrawingState build() {
+    return DrawingState(
       selectedColor: GColors.black,
       selectedColorIndex: 0,
       selectedTool: _createToolFromType(ToolType.pencil),
-      layers: canvasController.layers,
-      selectedLayerIndex: canvasController.selectedLayerIndex,
+      layers: _canvasController.layerRefs.mapIndexed((index, layerRef) => Layer(
+        data: layerRef.rootNode.process(null),
+        isVisible: layerRef.isVisible,
+        name: 'Layer $index',
+      )).toList(),
+      selectedLayerIndex: _canvasController.selectedLayerRefIndex,
     );
   }
 
-  void notifyLayersUpdated() {
-    _canvasController.layerManager.populateLayers();
+  Future<ui.Image> getRenderedImageForLayer(int index) {
+    final layerRefs = _canvasController.layerRefs;
 
-    state = state.copyWith(
-      layers: _canvasController.layers,
-    );
+    return layerRefs[index].rootNode.process(null).toFlutterImage();
   }
 
-  void createLayer() {
+  void addLayer() {
     _canvasController.addLayer();
-    notifyLayersUpdated();
+
+    final newLayer = Layer(
+      name: 'Untitled layer',
+      data: GBitmap(
+        _canvasController.width,
+        _canvasController.height,
+        config: GBitmapConfig.rgba,
+      ),
+      isVisible: true,
+    );
+    state = state.copyWith(
+      layers: [newLayer, ...state.layers],
+    );
+  }
+
+  void invalidateActiveLayer() {
+    _canvasController.invalidateLayers();
+
+    final index = state.selectedLayerIndex;
+    final oldLayer = state.layers[index];
+
+    final updatedLayer = oldLayer.copyWith(
+      data: _canvasController.selectedLayerRef.rootNode.process(null),
+    );
+
+    // no need to invalidate as u can just use relationship
+
+    final updatedLayers = [...state.layers];
+    updatedLayers[index] = updatedLayer;
+    
+    state = state.copyWith(
+      layers: updatedLayers,
+    );
   }
 
   void deleteLayer(int layerIndex) {
     _canvasController.deleteLayer(layerIndex);
-    notifyLayersUpdated();
+
+    final updatedLayers = List.of(state.layers)..removeAt(layerIndex);
+
+    int newSelectedIndex = state.selectedLayerIndex;
+    if (layerIndex <= newSelectedIndex) {
+      newSelectedIndex =
+          (state.selectedLayerIndex - 1).clamp(0, updatedLayers.length - 1);
+    }
+
+    state = state.copyWith(
+      layers: updatedLayers,
+      selectedLayerIndex: newSelectedIndex,
+    );
   }
 
   void toggleLayerVisibility(int layerIndex) {
     _canvasController.toggleLayerVisibility(layerIndex);
-    notifyLayersUpdated();
+
+    final updatedLayers = List.of(state.layers);
+    final layerToModify = updatedLayers[layerIndex];
+
+    updatedLayers[layerIndex] = layerToModify.copyWith(
+      isVisible: !layerToModify.isVisible,
+    );
+
+    state = state.copyWith(layers: updatedLayers);
   }
 
   void changeColor(GColor newColor) {
@@ -113,16 +140,21 @@ class _DrawingStateNotifier extends Notifier<_DrawingState> {
   }
 
   void changeLayerIndex(int newLayerIndex) {
-    _canvasController.selectedLayerIndex = newLayerIndex;
+    _canvasController.selectedLayerRefIndex = newLayerIndex;
+
     state = state.copyWith(selectedLayerIndex: newLayerIndex);
   }
 }
 
 final drawingStateProvider =
-    NotifierProvider<_DrawingStateNotifier, _DrawingState>(() {
+    NotifierProvider<_DrawingStateNotifier, DrawingState>(() {
   return _DrawingStateNotifier();
 });
 
 final canvasControllerProvider = Provider<CanvasController>((ref) {
   return CanvasController(width: 50, height: 50);
+});
+
+final appDatabaseProvider = Provider<AppDatabase>((ref) {
+  return AppDatabase();
 });

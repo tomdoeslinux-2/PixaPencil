@@ -1,5 +1,6 @@
 import 'package:app/models/color_extensions.dart';
 import 'package:app/providers/drawing_state_provider.dart';
+import 'package:app/screens/color_picker/color_picker_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphics/graphics.dart';
@@ -62,8 +63,10 @@ class ColorSwatchPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedColor = ref.watch(drawingStateProvider).selectedColor;
-    final selectedColorIndex = ref.watch(drawingStateProvider).selectedColorIndex;
+    final selectedColor =
+        ref.watch(drawingStateProvider.select((state) => state.selectedColor));
+    final selectedColorIndex = ref.watch(
+        drawingStateProvider.select((state) => state.selectedColorIndex));
 
     return IntrinsicHeight(
       child: Container(
@@ -102,8 +105,16 @@ class ColorSwatchPanel extends ConsumerWidget {
                 ],
               ),
             ),
-            AspectRatio(
-              aspectRatio: 1,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ColorPickerScreen(),
+                    fullscreenDialog: true,
+                  ),
+                );
+              },
               child: Container(
                 alignment: Alignment.center,
                 child: Container(

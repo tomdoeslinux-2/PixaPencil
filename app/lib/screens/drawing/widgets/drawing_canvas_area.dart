@@ -15,8 +15,8 @@ class CanvasPainter extends CustomPainter {
   final Offset panOffset;
 
   late Rect _artboardRect;
-  final _artboardPaint = Paint()..color = Colors.white;
-  final _artboardStrokePaint = Paint()
+  static final _artboardPaint = Paint()..color = Colors.white;
+  static final _artboardStrokePaint = Paint()
     ..color = const Color(
       0xFFD9D9D9,
     )
@@ -121,7 +121,7 @@ class _DrawingCanvasAreaState extends ConsumerState<DrawingCanvasArea> {
     if (_canvasOutput == null) {
       return const CircularProgressIndicator();
     }
-
+    // todo do we need to create instance each time
     final canvasPainter = CanvasPainter(
       image: _canvasOutput!,
       zoom: 1.0,
@@ -139,7 +139,7 @@ class _DrawingCanvasAreaState extends ConsumerState<DrawingCanvasArea> {
 
           selectedTool.onTouchDown(point);
           _updateCanvasOutput();
-          ref.read(drawingStateProvider.notifier).notifyLayersUpdated();
+          ref.read(drawingStateProvider.notifier).invalidateActiveLayer();
         },
         onScaleUpdate: (details) {
           final selectedTool = ref.read(drawingStateProvider).selectedTool;
@@ -148,7 +148,7 @@ class _DrawingCanvasAreaState extends ConsumerState<DrawingCanvasArea> {
 
           selectedTool.onTouchMove(point);
           _updateCanvasOutput();
-          ref.read(drawingStateProvider.notifier).notifyLayersUpdated();
+          ref.read(drawingStateProvider.notifier).invalidateActiveLayer();
         },
         child: CustomPaint(
           painter: canvasPainter,

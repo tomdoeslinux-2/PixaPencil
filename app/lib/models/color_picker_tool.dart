@@ -5,12 +5,13 @@ class ColorPickerTool extends Tool {
   late final GBitmap _activeLayerBitmap;
   void Function(GColor) onColorSelected;
 
+  // todo just pass active layer obj
   ColorPickerTool({
     required super.canvasController,
     required this.onColorSelected,
   }) {
-    _activeLayerBitmap = canvasController.selectedLayer.rootNode
-        .process(null);
+    _activeLayerBitmap =
+        canvasController.selectedLayerRef.rootNode.process(null);
   }
 
   void _selectColor(GPoint point) {

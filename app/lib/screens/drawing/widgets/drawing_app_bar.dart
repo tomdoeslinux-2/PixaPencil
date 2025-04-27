@@ -1,5 +1,9 @@
+import 'dart:ui';
+
+import 'package:app/database/database.dart';
 import 'package:app/models/bitmap_extensions.dart';
 import 'package:app/providers/drawing_state_provider.dart';
+import 'package:app/screens/home/home_screen.dart';
 import 'package:app/widgets/svg_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,6 +58,24 @@ class DrawingAppBar extends ConsumerWidget implements PreferredSizeWidget {
           itemBuilder: (BuildContext context) {
             return [
               PopupMenuItem(
+                child: const Text('Save'),
+                onTap: () async {
+                  final database = ref.read(appDatabaseProvider);
+                  await database
+                      .into(database.creations)
+                      .insert(CreationsCompanion.insert(title: 'Untitled'));
+
+                  if (!context.mounted) return;
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (ctx) => const HomeScreen(),
+                    ),
+                  );
+                },
+              ),
+              PopupMenuItem(
                 child: const Text('Show output graph'),
                 onTap: () async {
                   final rootNode = ref.read(canvasControllerProvider).rootNode;
@@ -67,43 +89,6 @@ class DrawingAppBar extends ConsumerWidget implements PreferredSizeWidget {
                       return AlertDialog(
                         title: const Text('Output Graph'),
                         content: Image.memory(imageBytes),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Close'),
-                          )
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-              PopupMenuItem(
-                child: const Text('Show layers'),
-                onTap: () async {
-                  final image = await ref
-                      .read(canvasControllerProvider)
-                      .layers
-                      .last
-                      .overNode
-                  ?.inputNode
-                      ?.process(null)
-                      .toFlutterImage();
-
-                  if (!context.mounted) return;
-
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Output Graph'),
-                        content: RawImage(
-                          image: image,
-                          width: 100,
-                          height: 100,
-                        ),
                         actions: [
                           TextButton(
                             onPressed: () {

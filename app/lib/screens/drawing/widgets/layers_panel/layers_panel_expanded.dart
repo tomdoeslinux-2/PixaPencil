@@ -15,9 +15,10 @@ class LayersPanelExpanded extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedLayerIndex =
-        ref.watch(drawingStateProvider).selectedLayerIndex;
-    final layers = ref.watch(drawingStateProvider).layers;
+    final selectedLayerIndex = ref.watch(
+        drawingStateProvider.select((state) => state.selectedLayerIndex));
+    final layers =
+        ref.watch(drawingStateProvider.select((state) => state.layers));
 
     return SizedBox(
       height: 282,
@@ -26,7 +27,7 @@ class LayersPanelExpanded extends ConsumerWidget {
         itemBuilder: (context, index) {
           if (index < layers.length) {
             return FutureBuilder<ui.Image>(
-              future: layers[index].rootNode.process(null).toFlutterImage(),
+              future: layers[index].data.toFlutterImage(),
               builder: (context, snapshot) {
                 return Center(
                   child: LayerListItem(
@@ -55,7 +56,7 @@ class LayersPanelExpanded extends ConsumerWidget {
           }
 
           return AddLayerButton(onTap: () {
-            ref.read(drawingStateProvider.notifier).createLayer();
+            ref.read(drawingStateProvider.notifier).addLayer();
           });
         },
         itemCount: layers.length + 1,

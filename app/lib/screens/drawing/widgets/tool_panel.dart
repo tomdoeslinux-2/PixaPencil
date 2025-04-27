@@ -14,7 +14,8 @@ class ToolPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedTool = ref.watch(drawingStateProvider).selectedTool;
+    final selectedTool =
+        ref.watch(drawingStateProvider.select((state) => state.selectedTool));
 
     return Container(
       height: 74,
@@ -33,17 +34,23 @@ class ToolPanel extends ConsumerWidget {
           ToolButton(
             icon: const SvgIcon('assets/icons/edit_m3.svg'),
             isSelected: selectedTool is PencilTool,
-            onTap: () => ref.read(drawingStateProvider.notifier).changeToolType(ToolType.pencil),
+            onTap: () => ref
+                .read(drawingStateProvider.notifier)
+                .changeToolType(ToolType.pencil),
           ),
           ToolButton(
             icon: const SvgIcon('assets/icons/eraser_m3.svg'),
             isSelected: selectedTool is EraserTool,
-            onTap: () => ref.read(drawingStateProvider.notifier).changeToolType(ToolType.eraser),
+            onTap: () => ref
+                .read(drawingStateProvider.notifier)
+                .changeToolType(ToolType.eraser),
           ),
           ToolButton(
             icon: const SvgIcon('assets/icons/colorize_m3.svg'),
             isSelected: selectedTool is ColorPickerTool,
-            onTap: () => ref.read(drawingStateProvider.notifier).changeToolType(ToolType.colorPicker),
+            onTap: () => ref
+                .read(drawingStateProvider.notifier)
+                .changeToolType(ToolType.colorPicker),
           ),
         ],
       ),

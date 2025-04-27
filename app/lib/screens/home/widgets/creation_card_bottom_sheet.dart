@@ -1,3 +1,4 @@
+import 'package:app/database/database.dart';
 import 'package:flutter/material.dart';
 
 import '../utils.dart';
@@ -65,16 +66,16 @@ class CreationCardBottomSheet extends StatelessWidget {
       child: Row(
         spacing: 18,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Image.asset(
-              creation.imageName,
-              width: 24,
-              height: 24,
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.none,
-            ),
-          ),
+          // ClipRRect(
+          //   borderRadius: BorderRadius.circular(4),
+          //   child: Image.asset(
+          //     creation.imageName,
+          //     width: 24,
+          //     height: 24,
+          //     fit: BoxFit.cover,
+          //     filterQuality: FilterQuality.none,
+          //   ),
+          // ),
           Text(
             creation.title,
             style: Theme.of(context).textTheme.titleMedium,

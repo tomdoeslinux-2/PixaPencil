@@ -5,7 +5,6 @@ import 'package:app/providers/drawing_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../layers_panel.dart';
 import 'add_layer_button.dart';
 import 'layer_cover_image.dart';
 
@@ -14,9 +13,8 @@ class LayersPanelCompact extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedLayerIndex =
-        ref.watch(drawingStateProvider).selectedLayerIndex;
-    final layers = ref.watch(drawingStateProvider).layers;
+    final layers =
+        ref.watch(drawingStateProvider.select((state) => state.layers));
 
     return SizedBox(
       height: 81,
@@ -26,22 +24,24 @@ class LayersPanelCompact extends ConsumerWidget {
         itemBuilder: (context, index) {
           if (index < layers.length) {
             return FutureBuilder<ui.Image>(
-              future: layers[index].rootNode.process(null).toFlutterImage(),
+              future: layers[index].data.toFlutterImage(),
               builder: (context, snapshot) {
-                return Center(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        ref
-                            .read(drawingStateProvider.notifier)
-                            .changeLayerIndex(index);
-                      },
-                      child: LayerCoverImage(
-                        layerImage: snapshot.data,
-                        isSelected: index == selectedLayerIndex,
-                        size: 61,
-                      ),
+                final img = snapshot.data;
+
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      ref
+                          .read(drawingStateProvider.notifier)
+                          .changeLayerIndex(index);
+                    },
+                    child: LayerCoverImage(
+                      layerImage: img,
+                      isSelected: index ==
+                          ref.watch(drawingStateProvider
+                              .select((state) => state.selectedLayerIndex)),
+                      size: 61,
                     ),
                   ),
                 );
@@ -52,7 +52,7 @@ class LayersPanelCompact extends ConsumerWidget {
           return Center(
             child: AddLayerButton(
               onTap: () {
-                ref.read(drawingStateProvider.notifier).createLayer();
+                ref.read(drawingStateProvider.notifier).addLayer();
               },
             ),
           );

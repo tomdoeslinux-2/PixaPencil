@@ -2,27 +2,18 @@ import 'package:collection/collection.dart';
 import 'package:graphics/graphics.dart';
 
 import 'graph_traversal.dart';
-import 'node.dart';
-import 'rendering_engine.dart';
-import 'overlay_node.dart';
 
-class Layer {
-  final String name;
+class LayerNodeReference {
   final Node rootNode;
   final OverlayNode? overNode;
   bool isVisible = true;
 
-  Layer(this.name, this.rootNode, this.overNode);
-
-  @override
-  String toString() {
-    return 'Layer(name: "$name", rootNodeId: ${rootNode.id})';
-  }
+  LayerNodeReference(this.rootNode, this.overNode);
 }
 
 class LayerManager {
   final RenderingEngine renderingEngine;
-  var layers = <Layer>[];
+  var layers = <LayerNodeReference>[];
 
   final bool enableDynamicLayerSwitchingOptimization;
   int _activeLayerIndex = 0;
@@ -127,10 +118,12 @@ class LayerManager {
           .store(kOverlayNodeCacheKeyResult, compositedBelow);
     }
 
-    if (targetLayerNode.inputNode == targetLayer.rootNode && targetLayerNode.parentNode == null) {
+    if (targetLayerNode.inputNode == targetLayer.rootNode &&
+        targetLayerNode.parentNode == null) {
       targetLayerNode.cache.store(
           kOverlayNodeCacheKeyOverlay, targetLayerNode.auxNode!.process(null));
-    } else if (targetLayerNode.auxNode == targetLayer.rootNode && targetLayerNode.parentNode == null) {
+    } else if (targetLayerNode.auxNode == targetLayer.rootNode &&
+        targetLayerNode.parentNode == null) {
       targetLayerNode.cache.store(kOverlayNodeCacheKeyBackground,
           targetLayerNode.inputNode!.process(null));
     }
@@ -154,22 +147,25 @@ class LayerManager {
     });
 
     if (layerNodes.isEmpty) {
-      final layer = Layer("Layer 0", renderingEngine.rootNode, null);
+      final layer = LayerNodeReference(renderingEngine.rootNode, null);
       layers.add(layer);
 
       return;
     }
 
-    for (final (indx, node) in layerNodes.indexed) {
-      final layer = Layer("Layer ${layerNodes.length - indx}", node,
-          node.parentNode as OverlayNode);
+    for (final (_, node) in layerNodes.indexed) {
+      final layer = LayerNodeReference(node, node.parentNode as OverlayNode);
 
-      // todo update this shit code
-      if ((node.parentNode as OverlayNode).isAuxNodePassthrough && node.parentNode!.auxNode == node) {
-        layer.isVisible = !(node.parentNode as OverlayNode).isAuxNodePassthrough;
-      } else if ((node.parentNode as OverlayNode).isInputNodePassthrough && node.parentNode!.inputNode == node) {
-        layer.isVisible = !(node.parentNode as OverlayNode).isInputNodePassthrough;
+      if ((node.parentNode as OverlayNode).isAuxNodePassthrough &&
+          node.parentNode!.auxNode == node) {
+        layer.isVisible =
+            !(node.parentNode as OverlayNode).isAuxNodePassthrough;
+      } else if ((node.parentNode as OverlayNode).isInputNodePassthrough &&
+          node.parentNode!.inputNode == node) {
+        layer.isVisible =
+            !(node.parentNode as OverlayNode).isInputNodePassthrough;
       }
+
       layers.insert(0, layer);
     }
   }
@@ -227,9 +223,10 @@ class LayerManager {
   void reorderLayer(int sourceIndex, int destinationIndex) {
     final layersToShift = layers
         .whereIndexed(
-            (index, _) => index >= sourceIndex && index <= destinationIndex).toList();
+            (index, _) => index >= sourceIndex && index <= destinationIndex)
+        .toList();
 
-    Layer? prevLayer;
+    LayerNodeReference? prevLayer;
 
     final firstLayer = layersToShift.first;
     if (firstLayer.overNode!.inputNode == firstLayer.rootNode) {
