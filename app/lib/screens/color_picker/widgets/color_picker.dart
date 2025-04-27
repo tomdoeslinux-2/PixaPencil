@@ -3,9 +3,23 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class ColorWheelPainter extends CustomPainter {
-  late final SweepGradient _hueGradient;
+  static final SweepGradient _hueGradient = SweepGradient(
+    colors: List.generate(
+      7,
+      (i) => HSVColor.fromAHSV(1.0, 360 - (i * 60.0), 1.0, 1.0)
+          .toColor(), // why this not work
+    ),
+    stops: const [
+      0,
+      1 / 6,
+      2 / 6,
+      3 / 6,
+      4 / 6,
+      5 / 6,
+      1,
+    ],
+  );
 
-  // needs to start at shade of gray
   static const _saturationGradient = RadialGradient(
     colors: [Colors.white, Color.fromRGBO(255, 255, 255, 0.0)],
     stops: [0.0, 1],
@@ -15,36 +29,15 @@ class ColorWheelPainter extends CustomPainter {
   final Offset center;
   final double radius;
   final double devicePixelRatio;
-  final double saturation;
+  final double brightness;
 
   ColorWheelPainter({
     required this.knobPosition,
     required this.center,
     required this.radius,
     required this.devicePixelRatio,
-    required this.saturation,
-  }) {
-    _hueGradient = _generateHueGradient(saturation);
-  }
-
-  SweepGradient _generateHueGradient(double saturation) {
-    return SweepGradient(
-      colors: List.generate(
-        7,
-            (i) => HSVColor.fromAHSV(1.0, 360 - (i * 60.0), saturation, 1.0)
-            .toColor(), // why this not work
-      ),
-      stops: const [
-        0,
-        1 / 6,
-        2 / 6,
-        3 / 6,
-        4 / 6,
-        5 / 6,
-        1,
-      ],
-    );
-  }
+    required this.brightness,
+  });
 
   void _drawBackground(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
@@ -63,6 +56,17 @@ class ColorWheelPainter extends CustomPainter {
       radius,
       saturationPaint,
     );
+
+    if (brightness < 1) {
+      final brightnessPaint = Paint()
+        ..color = Colors.black.withValues(alpha: 1 - brightness);
+
+      canvas.drawCircle(
+        center,
+        radius,
+        brightnessPaint,
+      );
+    }
   }
 
   void _drawKnob(Canvas canvas, Size size) {
@@ -88,20 +92,20 @@ class ColorWheelPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-class SaturationSliderPainter extends CustomPainter {
+class BrightnessSliderPainter extends CustomPainter {
   final double hue;
-  final double value;
+  final double saturation;
 
-  const SaturationSliderPainter({
+  const BrightnessSliderPainter({
     required this.hue,
-    required this.value,
+    required this.saturation,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final gradient = LinearGradient(colors: [
       Colors.black,
-      HSVColor.fromAHSV(1.0, hue, 1.0, value).toColor(),
+      HSVColor.fromAHSV(1.0, hue, saturation, 1.0).toColor(),
     ]);
 
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
@@ -122,6 +126,7 @@ class ColorPicker extends StatefulWidget {
 }
 
 class _ColorPickerState extends State<ColorPicker> {
+  var _selectedBrightness = 1.0;
   var _selectedColor = Colors.white;
 
   Offset? _knobPosition;
@@ -138,15 +143,21 @@ class _ColorPickerState extends State<ColorPicker> {
           _center! + Offset.fromDirection(offsetFromCenter.direction, _radius!);
     }
 
-    final hue = (offsetFromCenter.direction * 180 / pi + 360) % 360;
+    final hue = (-1 * offsetFromCenter.direction * 180 / pi + 360) % 360;
     final saturation = (distance / _radius!).clamp(0.0, 1.0);
 
-    final hsvColor = HSVColor.fromAHSV(1, hue, saturation, 1);
+    final hsvColor = HSVColor.fromAHSV(1, hue, saturation, _selectedBrightness);
     final color = hsvColor.toColor();
 
     setState(() {
       _knobPosition = clampedPosition;
       _selectedColor = color;
+    });
+  }
+
+  void _updateBrightness(double dx, double maxWidth) {
+    setState(() {
+      _selectedBrightness = (dx / maxWidth).clamp(0.0, 1.0);
     });
   }
 
@@ -186,7 +197,7 @@ class _ColorPickerState extends State<ColorPicker> {
                       knobPosition: _knobPosition!,
                       radius: _radius!,
                       center: _center!,
-                      saturation: 1.0,
+                      brightness: _selectedBrightness,
                       devicePixelRatio: dpr,
                     ),
                   ),
@@ -194,15 +205,27 @@ class _ColorPickerState extends State<ColorPicker> {
               },
             ),
           ),
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: CustomPaint(
-              painter: SaturationSliderPainter(
-                hue: HSVColor.fromColor(_selectedColor).hue,
-                value: HSVColor.fromColor(_selectedColor).value,
-              ),
-            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return GestureDetector(
+                onPanDown: (details) {
+                  _updateBrightness(details.localPosition.dx, constraints.maxWidth);
+                },
+                onPanUpdate: (details) {
+                  _updateBrightness(details.localPosition.dx, constraints.maxWidth);
+                },
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: CustomPaint(
+                    painter: BrightnessSliderPainter(
+                      hue: HSVColor.fromColor(_selectedColor).hue,
+                      saturation: HSVColor.fromColor(_selectedColor).saturation,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
           Container(
             color: _selectedColor,
