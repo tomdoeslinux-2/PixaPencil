@@ -1,86 +1,19 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 
-import 'package:app/models/bitmap_extensions.dart';
-import 'package:app/models/color_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:graphics/graphics.dart';
 
 import 'constants.dart';
 
-(double, double, double) _computeBarycentric(
-  GVector point,
-  GVector a,
-  GVector b,
-  GVector c,
-) {
-  final v0 = b.subtract(a);
-  final v1 = c.subtract(a);
-  final v2 = point.subtract(a);
-
-  final d00 = v0.dot(v0);
-  final d01 = v0.dot(v1);
-  final d11 = v1.dot(v1);
-  final d20 = v2.dot(v0);
-  final d21 = v2.dot(v1);
-
-  final denom = d00 * d11 - (d01 * d01);
-  final v = ((d11 * d20) - (d01 * d21)) / denom;
-  final w = ((d00 * d21) - (d01 * d20)) / denom;
-  final u = 1 - v - w;
-
-  return (u, v, w);
-}
-
-GBitmap _drawHueTriangleBitmap({
-  required double hue,
-  required int width,
-  required int height,
-}) {
-  final bitmap = GBitmap(
-    width,
-    height,
-    config: GBitmapConfig.rgba,
-  );
-
-  final GVector a = (width / 2, 0); // top vertex
-  final GVector b = (0, height.toDouble()); // bottom left vertex
-  final GVector c =
-      (width.toDouble(), height.toDouble()); // bottom right vertex
-
-  final stopwatch = Stopwatch()..start();
-
-  for (int y = 0; y < bitmap.height; ++y) {
-    for (int x = 0; x < bitmap.width; ++x) {
-      final GVector point = (x.toDouble(), y.toDouble());
-      final (u, v, w) = _computeBarycentric(point, a, b, c);
-
-      // check if point in triangle
-      if (u >= 0 && v >= 0 && w >= 0) {
-        final saturation = u;
-        final value = u + v;
-        final color = HSVColor.fromAHSV(1.0, hue, saturation, value);
-
-        bitmap.setPixel(x, y, color.toColor().toGColor());
-      }
-    }
-  }
-
-  stopwatch.stop();
-  print('Elapsed time: ${stopwatch.elapsedMilliseconds} ms');
-
-  return bitmap;
-}
-
 class _HueTriangleColorPickerPainter extends CustomPainter {
-  final ui.Image triangleImage;
+  final ui.FragmentProgram triangleFrag;
   final Offset center;
   final double radius;
   final double holeThickness;
   final double rotation;
 
   const _HueTriangleColorPickerPainter({
-    required this.triangleImage,
+    required this.triangleFrag,
     required this.center,
     required this.radius,
     required this.holeThickness,
@@ -121,9 +54,6 @@ class _HueTriangleColorPickerPainter extends CustomPainter {
     canvas.drawCircle(center, holeRadius, holePaint);
     canvas.restore();
 
-    final srcRect = Rect.fromLTWH(
-        0, 0, triangleImage.width.toDouble(), triangleImage.height.toDouble());
-
     final p1 = _computeEquilateralVertex(
       degrees: -90,
       center: center,
@@ -139,6 +69,24 @@ class _HueTriangleColorPickerPainter extends CustomPainter {
       center: center,
       radius: holeRadius,
     );
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotation * pi / 180);
+    canvas.translate(-center.dx, -center.dy);
+
+    final shader = triangleFrag.fragmentShader();
+    final hue = -1 * (rotation - 90) % 360;
+
+    shader.setFloat(0, hue);
+    shader.setFloat(1, p1.dx);
+    shader.setFloat(2, p1.dy);
+    shader.setFloat(3, p2.dx);
+    shader.setFloat(4, p2.dy);
+    shader.setFloat(5, p3.dx);
+    shader.setFloat(6, p3.dy);
+
+    final paint = Paint()..shader = shader;
 
     final dstRect = Rect.fromPoints(
       Offset(
@@ -163,11 +111,7 @@ class _HueTriangleColorPickerPainter extends CustomPainter {
       ),
     );
 
-    canvas.save();
-    canvas.translate(center.dx, center.dy);
-    canvas.rotate(rotation * pi / 180);
-    canvas.translate(-center.dx, -center.dy);
-    canvas.drawImageRect(triangleImage, srcRect, dstRect, Paint());
+    canvas.drawRect(dstRect, paint);
     canvas.restore();
   }
 
@@ -187,38 +131,31 @@ class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
   double? _radius;
   double _rotation = 0;
 
+  ui.FragmentProgram? _triangleFrag;
+
   bool _isDraggingHueRing = false;
 
-  ui.Image? _triangleImage;
+  @override
+  void initState() {
+    super.initState();
+    _loadFragmentShader();
+  }
 
-  void _handleHueRotation({
-    required Offset position,
-    required double holeThickness,
-    required int triangleWidth,
-    required int triangleHeight,
-  }) {
+  Future<void> _loadFragmentShader() async {
+    final program =
+        await ui.FragmentProgram.fromAsset('shaders/hue_triangle_shader.frag');
+
+    setState(() {
+      _triangleFrag = program;
+    });
+  }
+
+  void _handleHueRotation({required Offset position}) {
     final offsetFromCenter = position - _center!;
     final angle = offsetFromCenter.direction;
 
     setState(() {
       _rotation = angle * 180 / pi + 90;
-    });
-    
-    _updateTriangleImage(width: triangleWidth, height: triangleHeight);
-  }
-
-  Future<void> _updateTriangleImage({
-    required int width,
-    required int height,
-  }) async {
-    final newTriangleImage = await _drawHueTriangleBitmap(
-      hue: -1 * (_rotation - 90) % 360,
-      width: width,
-      height: height,
-    ).toFlutterImage();
-
-    setState(() {
-      _triangleImage = newTriangleImage;
     });
   }
 
@@ -234,17 +171,8 @@ class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
               _radius = min(size.width, size.height) / 2;
 
               final holeThickness = _radius! * 0.15;
-              final holeRadius = _radius! - holeThickness;
 
-              final dpr = MediaQuery.of(context).devicePixelRatio;
-              final triangleRenderRadius = holeRadius * dpr;
-
-              final triangleWidth = ((triangleRenderRadius * sqrt(3)).ceil() / 2.0).round();
-              final triangleHeight = (triangleRenderRadius.ceil() / 2.0).round();
-
-              if (_triangleImage == null) {
-                _updateTriangleImage(width: triangleWidth, height: triangleHeight);
-
+              if (_triangleFrag == null) {
                 return const SizedBox.shrink();
               }
 
@@ -260,22 +188,12 @@ class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
                   _isDraggingHueRing = isInHueRing;
 
                   if (_isDraggingHueRing) {
-                    _handleHueRotation(
-                      position: details.localPosition,
-                      holeThickness: holeThickness,
-                      triangleWidth: triangleWidth,
-                      triangleHeight: triangleHeight,
-                    );
+                    _handleHueRotation(position: details.localPosition);
                   }
                 },
                 onPanUpdate: (details) {
                   if (_isDraggingHueRing) {
-                    _handleHueRotation(
-                      position: details.localPosition,
-                      holeThickness: holeThickness,
-                      triangleWidth: triangleWidth,
-                      triangleHeight: triangleHeight,
-                    );
+                    _handleHueRotation(position: details.localPosition);
                   }
                 },
                 onPanEnd: (details) {
@@ -284,9 +202,9 @@ class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
                 child: CustomPaint(
                   size: size,
                   painter: _HueTriangleColorPickerPainter(
+                    triangleFrag: _triangleFrag!,
                     radius: _radius!,
                     center: _center!,
-                    triangleImage: _triangleImage!,
                     holeThickness: holeThickness,
                     rotation: _rotation,
                   ),

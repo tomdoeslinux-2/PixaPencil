@@ -95,6 +95,9 @@ flutter:
     - assets/icons/visibility_m3.svg
     - assets/icons/visibility_off_m3.svg
 
+  shaders:
+    - shaders/hue_triangle_shader.frag
+
   fonts:
     - family: Figtree
       fonts:
