@@ -1,9 +1,14 @@
-import 'dart:math';
-
+import 'package:app/screens/color_picker/widgets/hue_square_color_picker.dart';
 import 'package:app/screens/color_picker/widgets/spectrum_circle_color_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'hue_triangle_color_picker.dart';
+
+enum _ColorPickerType {
+  hueTriangle,
+  hueSquare,
+  spectrumCircle,
+}
 
 class ColorPicker extends StatefulWidget {
   const ColorPicker({super.key});
@@ -13,7 +18,7 @@ class ColorPicker extends StatefulWidget {
 }
 
 class _ColorPickerState extends State<ColorPicker> {
-  String _selectedView = 'hue_triangle_picker';
+  _ColorPickerType _selectedView = _ColorPickerType.spectrumCircle;
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +31,15 @@ class _ColorPickerState extends State<ColorPicker> {
           SegmentedButton(
             segments: const [
               ButtonSegment(
-                value: 'hue_triangle_picker',
+                value: _ColorPickerType.hueTriangle,
                 label: Text('Hue Triangle Picker'),
               ),
               ButtonSegment(
-                value: 'spectrum_circle_picker',
+                value: _ColorPickerType.hueSquare,
+                label: Text('Hue Square Picker'),
+              ),
+              ButtonSegment(
+                value: _ColorPickerType.spectrumCircle,
                 label: Text('Spectrum Circle Picker'),
               ),
             ],
@@ -49,12 +58,12 @@ class _ColorPickerState extends State<ColorPicker> {
 
   Widget _buildSelectedPicker() {
     switch (_selectedView) {
-      case 'hue_triangle_picker':
+      case _ColorPickerType.hueTriangle:
         return const HueTriangleColorPicker();
-      case 'spectrum_circle_picker':
+      case _ColorPickerType.hueSquare:
+        return const HueSquareColorPicker();
+      case _ColorPickerType.spectrumCircle:
         return const SpectrumCircleColorPicker();
-      default:
-        return const Placeholder();
     }
   }
 }

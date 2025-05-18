@@ -27,7 +27,7 @@ class ColorWheelPainter extends CustomPainter {
   void _drawBackground(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
 
-    final huePaint = Paint()..shader = hueGradient.createShader(rect);
+    final huePaint = Paint()..shader = kHueSweepGradient.createShader(rect);
     final saturationPaint = Paint()
       ..shader = _saturationGradient.createShader(rect);
 

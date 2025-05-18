@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:app/models/bitmap_extensions.dart';
@@ -49,6 +48,8 @@ GBitmap _drawHueTriangleBitmap({
   final GVector c =
       (width.toDouble(), height.toDouble()); // bottom right vertex
 
+  final stopwatch = Stopwatch()..start();
+
   for (int y = 0; y < bitmap.height; ++y) {
     for (int x = 0; x < bitmap.width; ++x) {
       final GVector point = (x.toDouble(), y.toDouble());
@@ -65,17 +66,20 @@ GBitmap _drawHueTriangleBitmap({
     }
   }
 
+  stopwatch.stop();
+  print('Elapsed time: ${stopwatch.elapsedMilliseconds} ms');
+
   return bitmap;
 }
 
-class HuePickerPainter extends CustomPainter {
+class _HueTriangleColorPickerPainter extends CustomPainter {
   final ui.Image triangleImage;
   final Offset center;
   final double radius;
   final double holeThickness;
   final double rotation;
 
-  const HuePickerPainter({
+  const _HueTriangleColorPickerPainter({
     required this.triangleImage,
     required this.center,
     required this.radius,
@@ -100,7 +104,7 @@ class HuePickerPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
 
-    final huePaint = Paint()..shader = hueGradient.createShader(rect);
+    final huePaint = Paint()..shader = kHueSweepGradient.createShader(rect);
 
     final layerBounds = Rect.fromCircle(center: center, radius: radius);
     canvas.saveLayer(layerBounds, Paint());
@@ -238,8 +242,6 @@ class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
               final triangleWidth = ((triangleRenderRadius * sqrt(3)).ceil() / 2.0).round();
               final triangleHeight = (triangleRenderRadius.ceil() / 2.0).round();
 
-              print(triangleWidth);
-
               if (_triangleImage == null) {
                 _updateTriangleImage(width: triangleWidth, height: triangleHeight);
 
@@ -281,7 +283,7 @@ class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
                 },
                 child: CustomPaint(
                   size: size,
-                  painter: HuePickerPainter(
+                  painter: _HueTriangleColorPickerPainter(
                     radius: _radius!,
                     center: _center!,
                     triangleImage: _triangleImage!,
