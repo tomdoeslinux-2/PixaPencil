@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import 'constants.dart';
+import 'utils.dart';
 
 class _HueTriangleColorPickerPainter extends CustomPainter {
   final ui.FragmentProgram triangleFrag;
@@ -35,24 +35,14 @@ class _HueTriangleColorPickerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-
-    final huePaint = Paint()..shader = kHueSweepGradient.createShader(rect);
-
-    final layerBounds = Rect.fromCircle(center: center, radius: radius);
-    canvas.saveLayer(layerBounds, Paint());
-
-    canvas.drawCircle(
-      center,
-      radius,
-      huePaint,
+    drawHueRing(
+      canvas: canvas,
+      center: center,
+      radius: radius,
+      holeThickness: holeThickness,
     );
 
-    final holePaint = Paint()..blendMode = BlendMode.clear;
     final holeRadius = radius - holeThickness;
-
-    canvas.drawCircle(center, holeRadius, holePaint);
-    canvas.restore();
 
     final p1 = _computeEquilateralVertex(
       degrees: -90,
@@ -120,7 +110,12 @@ class _HueTriangleColorPickerPainter extends CustomPainter {
 }
 
 class HueTriangleColorPicker extends StatefulWidget {
-  const HueTriangleColorPicker({super.key});
+  final void Function(Color) onColorSelected;
+
+  const HueTriangleColorPicker({
+    super.key,
+    required this.onColorSelected,
+  });
 
   @override
   State<HueTriangleColorPicker> createState() => _HueTriangleColorPickerState();
@@ -128,7 +123,6 @@ class HueTriangleColorPicker extends StatefulWidget {
 
 class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
   Offset? _center;
-  double? _radius;
   double _rotation = 0;
 
   ui.FragmentProgram? _triangleFrag;
@@ -168,9 +162,9 @@ class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
             builder: (context, constraints) {
               final size = Size(constraints.maxWidth, constraints.maxHeight);
               _center = size.center(Offset.zero);
-              _radius = min(size.width, size.height) / 2;
+              final radius = min(size.width, size.height) / 2;
 
-              final holeThickness = _radius! * 0.15;
+              final holeThickness = radius * 0.15;
 
               if (_triangleFrag == null) {
                 return const SizedBox.shrink();
@@ -181,9 +175,9 @@ class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
                   final offsetFromCenter = details.localPosition - _center!;
                   final distance = offsetFromCenter.distance;
 
-                  final innerRadius = _radius! - holeThickness;
+                  final innerRadius = radius - holeThickness;
                   final isInHueRing =
-                      distance >= innerRadius && distance <= _radius!;
+                      distance >= innerRadius && distance <= radius;
 
                   _isDraggingHueRing = isInHueRing;
 
@@ -203,7 +197,7 @@ class _HueTriangleColorPickerState extends State<HueTriangleColorPicker> {
                   size: size,
                   painter: _HueTriangleColorPickerPainter(
                     triangleFrag: _triangleFrag!,
-                    radius: _radius!,
+                    radius: radius,
                     center: _center!,
                     holeThickness: holeThickness,
                     rotation: _rotation,

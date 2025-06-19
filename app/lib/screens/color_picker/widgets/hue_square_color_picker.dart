@@ -1,9 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
-import 'constants.dart';
+import 'utils.dart';
 
 class _HueSquareColorPickerPainter extends CustomPainter {
   final double hue;
+  final Offset center;
+  final double radius;
+  final double holeThickness;
 
   static const _saturationGradient = LinearGradient(
     colors: [Colors.white, Color.fromRGBO(255, 255, 255, 0.0)],
@@ -16,34 +21,51 @@ class _HueSquareColorPickerPainter extends CustomPainter {
     end: Alignment.topCenter,
   );
 
-  const _HueSquareColorPickerPainter({required this.hue});
+  const _HueSquareColorPickerPainter({
+    required this.hue,
+    required this.center,
+    required this.radius,
+    required this.holeThickness,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    drawHueRing(
+      canvas: canvas,
+      center: center,
+      radius: radius,
+      holeThickness: holeThickness,
+    );
+
+    final holeRadius = radius - holeThickness;
+
+    final left = (center.dx - (holeRadius / sqrt(2)));
+    final top = (center.dy - (holeRadius / sqrt(2)));
+    final rectSize = holeRadius * sqrt(2);
+
+    final rect = Rect.fromLTWH(left, top, rectSize, rectSize);
 
     canvas.drawRect(
-        rect, Paint()..color = HSVColor.fromAHSV(1, hue, 1, 1).toColor());
+        rect,
+        Paint()
+          ..color =
+              HSVColor.fromAHSV(1, (-1 * hue + 360) % 360, 1, 1).toColor());
     canvas.drawRect(
         rect, Paint()..shader = _saturationGradient.createShader(rect));
     canvas.drawRect(
         rect, Paint()..shader = _brightnessGradient.createShader(rect));
-  }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-}
+    final knobPaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4;
 
-class _HueSliderPainter extends CustomPainter {
-  final _hueLinearGradient =
-      LinearGradient(colors: kHueColors, stops: kHueStops);
+    final knobPosition = Offset(
+      center.dx + (radius - (holeThickness / 2)) * cos((hue * pi) / 180),
+      center.dy + (radius - (holeThickness / 2)) * sin((hue * pi) / 180),
+    );
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final paint = Paint()..shader = _hueLinearGradient.createShader(rect);
-
-    canvas.drawRect(rect, paint);
+    canvas.drawCircle(knobPosition, 5, knobPaint);
   }
 
   @override
@@ -51,18 +73,32 @@ class _HueSliderPainter extends CustomPainter {
 }
 
 class HueSquareColorPicker extends StatefulWidget {
-  const HueSquareColorPicker({super.key});
+  final void Function(Color) onColorSelected;
+
+  const HueSquareColorPicker({
+    super.key,
+    required this.onColorSelected,
+  });
 
   @override
   State<HueSquareColorPicker> createState() => _HueSquareColorPickerState();
 }
 
 class _HueSquareColorPickerState extends State<HueSquareColorPicker> {
+  Offset? _center;
   var _selectedHue = 0.0;
+  bool _isDraggingHueRing = false;
 
-  void _updateHue(double dx, double maxWidth) {
+  void _updateHue(Offset position) {
+    final degrees = atan2(
+          position.dy - _center!.dy,
+          position.dx - _center!.dx,
+        ) *
+        (180 / pi);
+    final degreesNorm = (degrees + 360) % 360;
+
     setState(() {
-      _selectedHue = 360 - ((dx / maxWidth).clamp(0.0, 1.0) * 360);
+      _selectedHue = degreesNorm;
     });
   }
 
@@ -70,29 +106,50 @@ class _HueSquareColorPickerState extends State<HueSquareColorPicker> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        AspectRatio(
-          aspectRatio: 1,
-          child: CustomPaint(
-            painter: _HueSquareColorPickerPainter(hue: _selectedHue),
-            size: const Size(double.infinity, double.infinity),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final size = Size(constraints.maxWidth, constraints.maxHeight);
+              _center = size.center(Offset.zero);
+              final radius = min(size.width, size.height) / 2;
+
+              final holeThickness = radius * 0.15;
+
+              return GestureDetector(
+                onPanDown: (details) {
+                  final offsetFromCenter = details.localPosition - _center!;
+                  final distance = offsetFromCenter.distance;
+
+                  final innerRadius = radius - holeThickness;
+                  final isInHueRing =
+                      distance >= innerRadius && distance <= radius;
+
+                  _isDraggingHueRing = isInHueRing;
+
+                  if (_isDraggingHueRing) {
+                    _updateHue(details.localPosition);
+                  }
+                },
+                onPanUpdate: (details) {
+                  if (_isDraggingHueRing) {
+                    _updateHue(details.localPosition);
+                  }
+                },
+                onPanEnd: (details) {
+                  _isDraggingHueRing = false;
+                },
+                child: CustomPaint(
+                  painter: _HueSquareColorPickerPainter(
+                    hue: _selectedHue,
+                    center: _center!,
+                    radius: radius,
+                    holeThickness: holeThickness,
+                  ),
+                  size: const Size(double.infinity, double.infinity),
+                ),
+              );
+            },
           ),
-        ),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return GestureDetector(
-              onPanDown: (details) {
-                _updateHue(details.localPosition.dx, constraints.maxWidth);
-                print(_selectedHue);
-              },
-              onPanUpdate: (details) {
-                _updateHue(details.localPosition.dx, constraints.maxWidth);
-              },
-              child: CustomPaint(
-                painter: _HueSliderPainter(),
-                size: const Size(double.infinity, 50),
-              ),
-            );
-          },
         ),
       ],
     );

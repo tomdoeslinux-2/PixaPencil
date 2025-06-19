@@ -15,6 +15,9 @@ class LayersPanelCompact extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final layers =
         ref.watch(drawingStateProvider.select((state) => state.layers));
+    final selectedIndex = ref.watch(drawingStateProvider.select((state) => state.selectedLayerIndex));
+
+    print(selectedIndex);
 
     return SizedBox(
       height: 81,
@@ -29,6 +32,7 @@ class LayersPanelCompact extends ConsumerWidget {
                 final img = snapshot.data;
 
                 return Material(
+                  key: ValueKey(layers[index].data),
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () {

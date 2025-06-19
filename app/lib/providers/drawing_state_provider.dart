@@ -54,12 +54,6 @@ class _DrawingStateNotifier extends Notifier<DrawingState> {
     );
   }
 
-  Future<ui.Image> getRenderedImageForLayer(int index) {
-    final layerRefs = _canvasController.layerRefs;
-
-    return layerRefs[index].rootNode.process(null).toFlutterImage();
-  }
-
   void addLayer() {
     _canvasController.addLayer();
 
@@ -73,8 +67,10 @@ class _DrawingStateNotifier extends Notifier<DrawingState> {
       isVisible: true,
     );
     state = state.copyWith(
-      layers: [newLayer, ...state.layers],
+      layers: [...state.layers, newLayer],
     );
+
+    changeLayerIndex(state.layers.length - 1);
   }
 
   void invalidateActiveLayer() {
@@ -86,8 +82,6 @@ class _DrawingStateNotifier extends Notifier<DrawingState> {
     final updatedLayer = oldLayer.copyWith(
       data: _canvasController.selectedLayerRef.rootNode.process(null),
     );
-
-    // no need to invalidate as u can just use relationship
 
     final updatedLayers = [...state.layers];
     updatedLayers[index] = updatedLayer;
@@ -110,8 +104,9 @@ class _DrawingStateNotifier extends Notifier<DrawingState> {
 
     state = state.copyWith(
       layers: updatedLayers,
-      selectedLayerIndex: newSelectedIndex,
     );
+
+    changeLayerIndex(state.layers.length);
   }
 
   void toggleLayerVisibility(int layerIndex) {

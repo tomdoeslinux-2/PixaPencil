@@ -37,7 +37,12 @@ class _LayersPanelState extends State<LayersPanel> {
                 color: Colors.white,
               ),
               child: currentSize < 0.35
-                  ? ListView(controller: scrollController, children: [LayersPanelCompact()])
+                  ? ListView(
+                      controller: scrollController,
+                      children: const [
+                        LayersPanelCompact(),
+                      ],
+                    )
                   : LayersPanelExpanded(
                       scrollController: scrollController,
                     ),

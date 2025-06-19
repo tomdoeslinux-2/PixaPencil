@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import 'constants.dart';
+import 'utils.dart';
 
 class ColorWheelPainter extends CustomPainter {
   static const _saturationGradient = RadialGradient(
@@ -104,7 +104,12 @@ class BrightnessSliderPainter extends CustomPainter {
 }
 
 class SpectrumCircleColorPicker extends StatefulWidget {
-  const SpectrumCircleColorPicker({super.key});
+  final void Function(Color) onColorSelected;
+
+  const SpectrumCircleColorPicker({
+    super.key,
+    required this.onColorSelected,
+  });
 
   @override
   State<SpectrumCircleColorPicker> createState() =>
@@ -139,6 +144,8 @@ class _SpectrumCircleColorPickerState extends State<SpectrumCircleColorPicker> {
       _knobPosition = clampedPosition;
       _selectedColor = color;
     });
+
+    widget.onColorSelected(color);
   }
 
   void _updateBrightness(double dx, double maxWidth) {
