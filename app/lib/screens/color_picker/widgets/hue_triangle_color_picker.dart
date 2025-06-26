@@ -35,11 +35,11 @@ class _HueTriangleColorPickerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    drawHueRing(
+    drawHueRingWithKnob(
       canvas: canvas,
       center: center,
       radius: radius,
-      holeThickness: holeThickness,
+      hue: 8,
     );
 
     final holeRadius = radius - holeThickness;

@@ -8,7 +8,6 @@ class _HueSquareColorPickerPainter extends CustomPainter {
   final HSVColor color;
   final Offset center;
   final double radius;
-  final double holeThickness;
   final Rect innerRect;
 
   double get _hue => color.hue;
@@ -35,56 +34,19 @@ class _HueSquareColorPickerPainter extends CustomPainter {
     required this.color,
     required this.center,
     required this.radius,
-    required this.holeThickness,
     required this.innerRect,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    drawHueRing(
+    drawHueRingWithKnob(
       canvas: canvas,
       center: center,
       radius: radius,
-      holeThickness: holeThickness,
+      hue: _hue,
     );
-
     _drawSaturationBrightnessSquare(canvas, innerRect);
-    _drawHueKnob(canvas);
     _drawSaturationBrightnessKnob(canvas, innerRect);
-  }
-
-  void _drawHueKnob(Canvas canvas) {
-    final knobWidth = holeThickness;
-    final knobHeight = 0.3 * knobWidth;
-    final knobStrokeWidth = 0.4 * knobHeight;
-
-    final knobPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = knobStrokeWidth;
-
-    final angleRad = ((-1 * _hue + 360) % 360) * pi / 180;
-    final knobPosition = Offset(
-      center.dx + (radius - (holeThickness / 2)) * cos(angleRad),
-      center.dy + (radius - (holeThickness / 2)) * sin(angleRad),
-    );
-
-    final knobRect = Rect.fromCenter(
-      center: Offset.zero,
-      width: knobWidth,
-      height: knobHeight,
-    );
-    final knobRRect =
-        RRect.fromRectAndRadius(knobRect, Radius.circular(knobWidth / 2));
-
-    canvas.save();
-    canvas.translate(knobPosition.dx, knobPosition.dy);
-    canvas.rotate(angleRad);
-    canvas.drawRRect(knobRRect, _shadowPaint..strokeWidth = knobStrokeWidth);
-    canvas.drawRRect(
-        knobRRect, Paint()..color = HSVColor.fromAHSV(1, _hue, 1, 1).toColor());
-    canvas.drawRRect(knobRRect, knobPaint);
-    canvas.restore();
   }
 
   void _drawSaturationBrightnessKnob(Canvas canvas, Rect rect) {
@@ -194,7 +156,7 @@ class _HueSquareColorPickerState extends State<HueSquareColorPicker> {
               final size = Size(constraints.maxWidth, constraints.maxWidth);
               _center = size.center(Offset.zero);
               final radius = min(size.width, size.height) / 2;
-              final holeThickness = radius * 0.20;
+              final holeThickness = getHueRingHoleThickness(radius);
               _innerRect = _calculateInnerRect(radius - holeThickness);
 
               return GestureDetector(
@@ -238,7 +200,6 @@ class _HueSquareColorPickerState extends State<HueSquareColorPicker> {
                         0, _selectedHue, _selectedSaturation, _selectedValue),
                     center: _center!,
                     radius: radius,
-                    holeThickness: holeThickness,
                     innerRect: _innerRect!,
                   ),
                   size: const Size(double.infinity, double.infinity),
