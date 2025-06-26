@@ -1,5 +1,4 @@
 import 'package:app/screens/drawing/drawing_screen.dart';
-import 'package:app/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +8,11 @@ void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
 
+const seed = Color(0xFF6495ED);
+final myScheme = ColorScheme.fromSeed(seedColor: seed).copyWith(
+  primary: seed,
+);
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -17,15 +21,25 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'PixaPencil',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: myScheme,
         useMaterial3: true,
         fontFamily: 'Figtree',
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: myScheme.primary,
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: myScheme.primary,
+          ),
+        ),
         textTheme: const TextTheme(
           titleMedium: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-          )
-        )
+          ),
+        ),
       ),
       home: DrawingScreen(),
     );
@@ -64,5 +78,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
-
