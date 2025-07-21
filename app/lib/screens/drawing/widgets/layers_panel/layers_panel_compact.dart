@@ -15,9 +15,6 @@ class LayersPanelCompact extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final layers =
         ref.watch(drawingStateProvider.select((state) => state.layers));
-    final selectedIndex = ref.watch(drawingStateProvider.select((state) => state.selectedLayerIndex));
-
-    print(selectedIndex);
 
     return SizedBox(
       height: 81,

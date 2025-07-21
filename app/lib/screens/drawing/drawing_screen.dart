@@ -8,7 +8,6 @@ import 'package:app/models/tool_type.dart';
 import 'package:app/providers/drawing_state_provider.dart';
 import 'package:app/screens/drawing/widgets/drawing_app_bar.dart';
 import 'package:app/screens/drawing/widgets/drawing_canvas_area.dart';
-import 'package:app/screens/drawing/widgets/layers_panel.dart';
 import 'package:app/screens/drawing/widgets/layers_panel/layers_panel.dart';
 import 'package:app/widgets/svg_icon.dart';
 import 'package:flutter/material.dart';

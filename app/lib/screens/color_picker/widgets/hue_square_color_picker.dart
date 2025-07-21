@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:app/providers/color_picker_color_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'utils.dart';
 
@@ -13,11 +15,6 @@ class _HueSquareColorPickerPainter extends CustomPainter {
   double get _hue => color.hue;
   double get _saturation => color.saturation;
   double get _value => color.value;
-
-  static final _shadowPaint = Paint()
-    ..color = const Color.fromRGBO(0, 0, 0, 0.15)
-    ..style = PaintingStyle.stroke
-    ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.79);
 
   static const _saturationGradient = LinearGradient(
     colors: [Colors.white, Color.fromRGBO(255, 255, 255, 0.0)],
@@ -50,28 +47,10 @@ class _HueSquareColorPickerPainter extends CustomPainter {
   }
 
   void _drawSaturationBrightnessKnob(Canvas canvas, Rect rect) {
-    const knobStrokeWidth = 5.0;
-    const knobSize = 23 - knobStrokeWidth;
-
-    final knobPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = knobStrokeWidth;
-
     final dx = rect.left + (rect.width * _saturation);
     final dy = rect.top + (rect.height * (1 - _value));
-    final offset = Offset(dx, dy);
 
-    canvas.drawCircle(
-        offset, knobSize / 2, _shadowPaint..strokeWidth = knobStrokeWidth);
-    canvas.drawCircle(
-      offset,
-      knobSize / 2,
-      Paint()
-        ..color = color.withAlpha(1).toColor()
-        ..style = PaintingStyle.fill,
-    );
-    canvas.drawCircle(offset, knobSize / 2, knobPaint);
+    drawKnob(canvas: canvas, color: color.toColor(), position: Offset(dx, dy));
   }
 
   void _drawSaturationBrightnessSquare(Canvas canvas, Rect rect) {
@@ -87,8 +66,8 @@ class _HueSquareColorPickerPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-class HueSquareColorPicker extends StatefulWidget {
-  final void Function(Color) onColorSelected;
+class HueSquareColorPicker extends ConsumerStatefulWidget {
+  final void Function(HSVColor) onColorSelected;
 
   const HueSquareColorPicker({
     super.key,
@@ -96,7 +75,8 @@ class HueSquareColorPicker extends StatefulWidget {
   });
 
   @override
-  State<HueSquareColorPicker> createState() => _HueSquareColorPickerState();
+  ConsumerState<HueSquareColorPicker> createState() =>
+      _HueSquareColorPickerState();
 }
 
 enum _DragTarget {
@@ -104,11 +84,8 @@ enum _DragTarget {
   innerRect,
 }
 
-class _HueSquareColorPickerState extends State<HueSquareColorPicker> {
+class _HueSquareColorPickerState extends ConsumerState<HueSquareColorPicker> {
   Offset? _center;
-  var _selectedHue = 0.0;
-  var _selectedSaturation = 0.0;
-  var _selectedValue = 0.0;
   Rect? _innerRect;
 
   _DragTarget? _dragTarget;
@@ -125,41 +102,43 @@ class _HueSquareColorPickerState extends State<HueSquareColorPicker> {
     final localX = (position.dx - _innerRect!.left) / _innerRect!.width;
     final localY = (position.dy - _innerRect!.top) / _innerRect!.height;
 
-    setState(() {
-      _selectedSaturation = localX.clamp(0.0, 1.0);
-      _selectedValue = (1.0 - localY).clamp(0.0, 1.0);
-    });
+    final hsv = ref.read(colorPickerColorProvider);
+    final newColor = hsv
+        .withSaturation(localX.clamp(0.0, 1.0))
+        .withValue((1.0 - localY).clamp(0.0, 1.0));
 
-    print(_selectedValue);
+    ref.read(colorPickerColorProvider.notifier).state = newColor;
   }
 
   void _updateHue(Offset position) {
-    final degrees = atan2(
-          position.dy - _center!.dy,
-          position.dx - _center!.dx,
-        ) *
-        (180 / pi);
-    final degreesNorm = 360 - ((degrees + 360) % 360);
+    final hsv = ref.read(colorPickerColorProvider);
+    final newHue = computeHueFromPosition(
+      position: position,
+      center: _center!,
+    );
 
-    setState(() {
-      _selectedHue = degreesNorm;
-    });
+    ref.read(colorPickerColorProvider.notifier).state = hsv.withHue(newHue);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final size = Size(constraints.maxWidth, constraints.maxWidth);
-              _center = size.center(Offset.zero);
-              final radius = min(size.width, size.height) / 2;
-              final holeThickness = getHueRingHoleThickness(radius);
-              _innerRect = _calculateInnerRect(radius - holeThickness);
+    final hsv = ref.watch(colorPickerColorProvider);
 
-              return GestureDetector(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final size = Size(constraints.maxWidth, constraints.maxWidth);
+            _center = size.center(Offset.zero);
+            final radius = min(size.width, size.height) / 2;
+            final holeThickness = getHueRingHoleThickness(radius);
+            _innerRect = _calculateInnerRect(radius - holeThickness);
+
+            return SizedBox(
+              width: size.width,
+              height: size.height,
+              child: GestureDetector(
                 onPanDown: (details) {
                   final offsetFromCenter = details.localPosition - _center!;
                   final distance = offsetFromCenter.distance;
@@ -196,17 +175,16 @@ class _HueSquareColorPickerState extends State<HueSquareColorPicker> {
                 },
                 child: CustomPaint(
                   painter: _HueSquareColorPickerPainter(
-                    color: HSVColor.fromAHSV(
-                        0, _selectedHue, _selectedSaturation, _selectedValue),
+                    color: hsv,
                     center: _center!,
                     radius: radius,
                     innerRect: _innerRect!,
                   ),
                   size: const Size(double.infinity, double.infinity),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ],
     );

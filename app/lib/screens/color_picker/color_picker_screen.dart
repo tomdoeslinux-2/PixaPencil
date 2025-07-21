@@ -1,9 +1,13 @@
+import 'package:app/providers/color_picker_color_provider.dart';
+import 'package:app/screens/color_picker/widgets/utils.dart';
 import 'package:app/widgets/icon_dropdown_menu.dart';
+import 'package:app/widgets/svg_icon.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../widgets/segmented_button.dart';
 import 'widgets/hue_square_color_picker.dart';
 import 'widgets/spectrum_circle_color_picker.dart';
 import 'widgets/hue_triangle_color_picker.dart';
-import 'package:app/screens/color_picker/widgets/utils.dart';
 import 'package:flutter/material.dart';
 
 enum _ColorPickerType {
@@ -64,16 +68,18 @@ class GradientTrackShape extends SliderTrackShape {
 }
 
 class BorderedThumbShape extends SliderComponentShape {
-  final double thumbRadius;
+  final double thumbRadius = 12.5;
   final Color fillColor;
-  final Color borderColor;
-  final double borderWidth;
+  final Color borderColor = Colors.white;
+  final double borderWidth = 2;
+
+  static final _shadowPaint = Paint()
+    ..color = const Color.fromRGBO(0, 0, 0, 0.15)
+    ..style = PaintingStyle.fill
+    ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.79);
 
   const BorderedThumbShape({
-    this.thumbRadius = 12.5,
     this.fillColor = Colors.white,
-    this.borderColor = Colors.black,
-    this.borderWidth = 2,
   });
 
   @override
@@ -107,13 +113,19 @@ class BorderedThumbShape extends SliderComponentShape {
       ..strokeWidth = borderWidth
       ..style = PaintingStyle.stroke;
 
+    canvas.drawCircle(center, thumbRadius, _shadowPaint); // why shadow not visible?
     canvas.drawCircle(center, thumbRadius, fillPaint);
     canvas.drawCircle(center, thumbRadius, borderPaint);
   }
 }
 
-class ValueInput extends StatelessWidget {
-  const ValueInput({super.key});
+class NumberValueInput extends StatelessWidget {
+  final TextEditingController controller;
+
+  const NumberValueInput({
+    super.key,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +133,7 @@ class ValueInput extends StatelessWidget {
       height: 40,
       width: 51,
       child: TextField(
+        controller: controller,
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         style: const TextStyle(
@@ -142,31 +155,131 @@ class ValueInput extends StatelessWidget {
   }
 }
 
-class HSVSliders extends StatefulWidget {
-  final Color selectedColor;
+class ColorChannelSliderInput extends StatelessWidget {
+  final String label;
+  final LinearGradient gradient;
+  final Color thumbColor;
+  final double sliderValue;
+  final Function(double) onSliderValueChanged;
+  final TextEditingController controller;
+  final double min;
+  final double max;
 
-  const HSVSliders({super.key, required this.selectedColor});
-
-  @override
-  State<HSVSliders> createState() => _HSVSlidersState();
-}
-
-class _HSVSlidersState extends State<HSVSliders> {
-  double _hueValue = 0;
-  double _saturationValue = 0;
-  double _brightnessValue = 0;
+  const ColorChannelSliderInput({
+    super.key,
+    required this.label,
+    required this.gradient,
+    required this.thumbColor,
+    required this.sliderValue,
+    required this.onSliderValueChanged,
+    required this.controller,
+    required this.min,
+    required this.max,
+  });
 
   @override
   Widget build(BuildContext context) {
     final sliderTheme = SliderTheme.of(context).copyWith(
       trackHeight: 9,
-      thumbShape: const BorderedThumbShape(),
     );
 
-    final selectedHue = HSVColor.fromColor(widget.selectedColor).hue;
-    final selectedSaturation =
-        HSVColor.fromColor(widget.selectedColor).saturation;
-    final selectedValue = HSVColor.fromColor(widget.selectedColor).value;
+    return Row(
+      children: [
+        Text(label),
+        Expanded(
+          child: SliderTheme(
+            data: sliderTheme.copyWith(
+              trackShape: GradientTrackShape(gradient: gradient),
+              thumbShape: BorderedThumbShape(
+                fillColor: thumbColor,
+              ),
+            ),
+            child: Slider(
+              min: min,
+              max: max,
+              value: sliderValue,
+              onChanged: onSliderValueChanged,
+            ),
+          ),
+        ),
+        NumberValueInput(
+          controller: controller,
+        ),
+      ],
+    );
+  }
+}
+
+class HSVSliders extends ConsumerStatefulWidget {
+  const HSVSliders({super.key});
+
+  @override
+  ConsumerState<HSVSliders> createState() => _HSVSlidersState();
+}
+
+class _HSVSlidersState extends ConsumerState<HSVSliders> {
+  late final TextEditingController _hueController;
+  late final TextEditingController _saturationController;
+  late final TextEditingController _brightnessController;
+
+  String _formatHue(double h) => h.toStringAsFixed(1);
+  String _formatSaturation(double s) => (s * 100.0).toStringAsFixed(1);
+  String _formatValue(double v) => (v * 100.0).toStringAsFixed(1);
+
+  void _syncControllers(HSVColor hsv) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final newHue = _formatHue(hsv.hue);
+      final newSaturation = _formatSaturation(hsv.saturation);
+      final newValue = _formatValue(hsv.value);
+
+      if (_hueController.text != newHue) {
+        _hueController.text = newHue;
+      }
+      if (_saturationController.text != newSaturation) {
+        _saturationController.text = newSaturation;
+      }
+      if (_brightnessController.text != newValue) {
+        _brightnessController.text = newValue;
+      }
+    });
+  }
+
+  LinearGradient _getHueGradient() {
+    return LinearGradient(
+      colors: kHueColors.reversed.toList(),
+      stops: kHueStops,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    final hsv = ref.read(colorPickerColorProvider);
+
+    _hueController = TextEditingController(text: _formatHue(hsv.hue));
+    _saturationController =
+        TextEditingController(text: _formatSaturation(hsv.saturation));
+    _brightnessController =
+        TextEditingController(text: _formatValue(hsv.value));
+  }
+
+  @override
+  void dispose() {
+    _hueController.dispose();
+    _saturationController.dispose();
+    _brightnessController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hsv = ref.watch(colorPickerColorProvider);
+    _syncControllers(hsv);
+
+    final selectedHue = hsv.hue;
+    final selectedSaturation = hsv.saturation;
+    final selectedValue = hsv.value;
 
     final saturationGradient = LinearGradient(colors: [
       HSVColor.fromAHSV(1.0, selectedHue, 0, selectedValue).toColor(),
@@ -177,164 +290,76 @@ class _HSVSlidersState extends State<HSVSliders> {
       HSVColor.fromAHSV(1.0, selectedHue, selectedSaturation, 1.0).toColor(),
     ]);
 
-    return SliderTheme(
-      data: sliderTheme,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Text('H'),
-              Expanded(
-                child: SliderTheme(
-                  data: sliderTheme.copyWith(
-                    trackShape:
-                        GradientTrackShape(gradient: kHueLinearGradient),
-                  ),
-                  child: Slider(
-                    value: _hueValue,
-                    onChanged: (value) {
-                      setState(() {
-                        _hueValue = value;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              const ValueInput(),
-            ],
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text('S'),
-              Expanded(
-                child: SliderTheme(
-                  data: sliderTheme.copyWith(
-                    trackShape:
-                        GradientTrackShape(gradient: saturationGradient),
-                  ),
-                  child: Slider(
-                    value: _saturationValue,
-                    onChanged: (value) {
-                      setState(() {
-                        _saturationValue = value;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              const ValueInput(),
-            ],
-          ),
-          Row(
-            children: [
-              const Text('V'),
-              Expanded(
-                child: SliderTheme(
-                  data: sliderTheme.copyWith(
-                    trackShape:
-                        GradientTrackShape(gradient: brightnessGradient),
-                  ),
-                  child: Slider(
-                    value: _brightnessValue,
-                    onChanged: (value) {
-                      setState(() {
-                        _brightnessValue = value;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              const ValueInput(),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        ColorChannelSliderInput(
+          label: 'H',
+          gradient: _getHueGradient(),
+          thumbColor: HSVColor.fromAHSV(1, hsv.hue, 1, 1).toColor(),
+          sliderValue: hsv.hue,
+          onSliderValueChanged: (value) {
+            ref.read(colorPickerColorProvider.notifier).state =
+                hsv.withHue(value);
+          },
+          controller: _hueController,
+          min: 0,
+          max: 360,
+        ),
+        ColorChannelSliderInput(
+          label: 'S',
+          gradient: saturationGradient,
+          thumbColor: HSVColor.fromAHSV(1, hsv.hue, hsv.saturation, hsv.value)
+              .toColor(),
+          sliderValue: hsv.saturation,
+          onSliderValueChanged: (value) {
+            ref.read(colorPickerColorProvider.notifier).state =
+                hsv.withSaturation(value);
+          },
+          controller: _saturationController,
+          min: 0,
+          max: 1,
+        ),
+        ColorChannelSliderInput(
+          label: 'V',
+          gradient: brightnessGradient,
+          thumbColor: HSVColor.fromAHSV(1, hsv.hue, hsv.saturation, hsv.value)
+              .toColor(),
+          sliderValue: hsv.value,
+          onSliderValueChanged: (value) {
+            ref.read(colorPickerColorProvider.notifier).state =
+                hsv.withValue(value);
+          },
+          controller: _brightnessController,
+          min: 0,
+          max: 1,
+        ),
+      ],
     );
   }
 }
 
-class Segment<T> {
-  T value;
-  String label;
+class ColorPickerScreen extends ConsumerStatefulWidget {
+  final Color initialColor;
 
-  Segment({
-    required this.value,
-    required this.label,
-  });
-}
-
-class PXSegmentedButton<T> extends StatelessWidget {
-  final T selected;
-  final List<Segment<T>> segments;
-  final void Function(Segment) onChange;
-
-  const PXSegmentedButton({
+  const ColorPickerScreen({
     super.key,
-    required this.selected,
-    required this.segments,
-    required this.onChange,
+    required this.initialColor,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: const Color(0xFFEAEAEA),
-      ),
-      padding: const EdgeInsets.all(2),
-      child: Row(
-        spacing: 4,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var s in segments)
-            GestureDetector(
-              onTap: () {
-                onChange(s);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color:
-                      selected == s.value ? Colors.white : Colors.transparent,
-                ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(
-                    s.label,
-                    style: TextStyle(
-                      fontWeight: selected == s.value
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class ColorPickerScreen extends StatefulWidget {
-  const ColorPickerScreen({super.key});
-
-  @override
-  State<ColorPickerScreen> createState() => _ColorPickerScreenState();
+  ConsumerState<ColorPickerScreen> createState() => _ColorPickerScreenState();
 }
 
 enum _SliderType { hsv, rgb, hex }
 
-class _ColorPickerScreenState extends State<ColorPickerScreen> {
-  var _selectedColor = Colors.black;
+class _ColorPickerScreenState extends ConsumerState<ColorPickerScreen> {
   var _selectedColorPickerType = _ColorPickerType.hueSquare;
-  var _selectedSliders = _SliderType.hsv;
+  var _selectedSliderType = _SliderType.hsv;
 
   @override
   Widget build(BuildContext context) {
+    final selectedColor = ref.watch(colorPickerColorProvider);
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 4,
@@ -354,23 +379,22 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
                 Positioned(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: _buildSelectedPicker(),
-                    ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: _buildSelectedPicker(),
                   ),
                 ),
                 Positioned(
-                  right: 20,
-                  top: 20,
+                  right: 0,
+                  top: 0,
                   child: IconDropdownMenu(
                     items: [
                       IconDropdownItem(
@@ -406,60 +430,118 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
                     },
                   ),
                 ),
-                const Positioned(
+                Positioned(
                   left: 0,
                   top: 0,
-                  child: DropdownMenu(dropdownMenuEntries: []),
+                  child: IconButton(
+                    style: IconButton.styleFrom(
+                      side: const BorderSide(
+                        color: Color(0xFFC2C2C2),
+                      ),
+                    ),
+                    onPressed: () {},
+                    icon: const SvgIcon('assets/icons/library_add_m3.svg'),
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  bottom: 0,
+                  child: IconButton(
+                    style: IconButton.styleFrom(
+                      side: const BorderSide(
+                        color: Color(0xFFC2C2C2),
+                      ),
+                    ),
+                    onPressed: () {
+                      ref.read(colorPickerColorProvider.notifier).state =
+                          HSVColor.fromColor(widget.initialColor);
+                    },
+                    icon: const SvgIcon('assets/icons/restart_alt_m3.svg'),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: IconButton(
+                    style: IconButton.styleFrom(
+                      side: const BorderSide(
+                        color: Color(0xFFC2C2C2),
+                      ),
+                    ),
+                    onPressed: () {},
+                    icon: const SvgIcon('assets/icons/colorize_m3.svg'),
+                  ),
                 ),
               ],
             ),
-          ),
-          PXSegmentedButton(
-            selected: _selectedSliders,
-            segments: [
-              Segment(
-                label: 'HSV',
-                value: _SliderType.hsv,
-              ),
-              Segment(
-                label: 'RGB',
-                value: _SliderType.rgb,
-              ),
-              Segment(
-                label: 'HEX',
-                value: _SliderType.hex,
-              ),
-            ],
-            onChange: (segment) {
-              setState(() {
-                _selectedSliders = segment.value;
-              });
-            },
-          ),
-          HSVSliders(
-            selectedColor: _selectedColor,
-          ),
-          Row(
-            children: [
-              FilledButton(
-                onPressed: () {},
-                child: const Text('Done'),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text('Cancel'),
-              ),
-            ],
-          )
-        ],
+            const SizedBox(
+              height: 34,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 48,
+                    color: Colors.red,
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    height: 48,
+                    color: selectedColor.toColor(),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 41,
+            ),
+            AppSegmentedButton(
+              selected: _selectedSliderType,
+              segments: [
+                Segment(
+                  label: 'HSV',
+                  value: _SliderType.hsv,
+                ),
+                Segment(
+                  label: 'RGB',
+                  value: _SliderType.rgb,
+                ),
+                Segment(
+                  label: 'HEX',
+                  value: _SliderType.hex,
+                ),
+              ],
+              onChange: (segment) {
+                setState(() {
+                  _selectedSliderType = segment.value;
+                });
+              },
+            ),
+            const SizedBox(
+              height: 21,
+            ),
+            const HSVSliders(),
+            Row(
+              children: [
+                FilledButton(
+                  onPressed: () {},
+                  child: const Text('Done'),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text('Cancel'),
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
 
-  void _handleColorChange(Color color) {
-    setState(() {
-      _selectedColor = color;
-    });
+  void _handleColorChange(HSVColor color) {
+    ref.read(colorPickerColorProvider.notifier).state = color;
   }
 
   Widget _buildSelectedPicker() {

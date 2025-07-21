@@ -10,6 +10,7 @@ class ColorWheelPainter extends CustomPainter {
     stops: [0.0, 1],
   );
 
+  final Color color;
   final Offset knobPosition;
   final Offset center;
   final double radius;
@@ -17,6 +18,7 @@ class ColorWheelPainter extends CustomPainter {
   final double brightness;
 
   ColorWheelPainter({
+    required this.color,
     required this.knobPosition,
     required this.center,
     required this.radius,
@@ -54,23 +56,10 @@ class ColorWheelPainter extends CustomPainter {
     }
   }
 
-  void _drawKnob(Canvas canvas, Size size) {
-    const thickness = 5;
-    const radius = 23;
-
-    final knobPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = thickness / devicePixelRatio;
-
-    canvas.drawCircle(
-        knobPosition, (radius - thickness) / devicePixelRatio, knobPaint);
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
     _drawBackground(canvas, size);
-    _drawKnob(canvas, size);
+    drawKnob(canvas: canvas, color: color, position: knobPosition);
   }
 
   @override
@@ -104,7 +93,7 @@ class BrightnessSliderPainter extends CustomPainter {
 }
 
 class SpectrumCircleColorPicker extends StatefulWidget {
-  final void Function(Color) onColorSelected;
+  final void Function(HSVColor) onColorSelected;
 
   const SpectrumCircleColorPicker({
     super.key,
@@ -134,7 +123,7 @@ class _SpectrumCircleColorPickerState extends State<SpectrumCircleColorPicker> {
           _center! + Offset.fromDirection(offsetFromCenter.direction, _radius!);
     }
 
-    final hue = (-1 * offsetFromCenter.direction * 180 / pi + 360) % 360;
+    final hue = (-1 * radToDeg(offsetFromCenter.direction) + 360) % 360;
     final saturation = (distance / _radius!).clamp(0.0, 1.0);
 
     final hsvColor = HSVColor.fromAHSV(1, hue, saturation, _selectedBrightness);
@@ -145,7 +134,7 @@ class _SpectrumCircleColorPickerState extends State<SpectrumCircleColorPicker> {
       _selectedColor = color;
     });
 
-    widget.onColorSelected(color);
+    widget.onColorSelected(hsvColor);
   }
 
   void _updateBrightness(double dx, double maxWidth) {
@@ -185,6 +174,7 @@ class _SpectrumCircleColorPickerState extends State<SpectrumCircleColorPicker> {
                 child: CustomPaint(
                   size: size,
                   painter: ColorWheelPainter(
+                    color: _selectedColor,
                     knobPosition: _knobPosition!,
                     radius: _radius!,
                     center: _center!,
@@ -219,11 +209,6 @@ class _SpectrumCircleColorPickerState extends State<SpectrumCircleColorPicker> {
               ),
             );
           },
-        ),
-        Container(
-          color: _selectedColor,
-          width: double.infinity,
-          height: 100,
         ),
       ],
     );

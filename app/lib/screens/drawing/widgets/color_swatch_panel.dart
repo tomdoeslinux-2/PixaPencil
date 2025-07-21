@@ -110,7 +110,9 @@ class ColorSwatchPanel extends ConsumerWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ColorPickerScreen(),
+                    builder: (_) => const ColorPickerScreen(
+                      initialColor: Colors.blue,
+                    ),
                     fullscreenDialog: true,
                   ),
                 );

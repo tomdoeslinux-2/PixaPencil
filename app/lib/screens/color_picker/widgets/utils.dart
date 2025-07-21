@@ -2,13 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-final List<Color> _kHueColors = List.generate(
+final List<Color> kHueColors = List.generate(
   7,
-  (i) => HSVColor.fromAHSV(1.0, 360 - (i * 60.0), 1.0, 1.0)
-      .toColor(),
+  (i) => HSVColor.fromAHSV(1.0, 360 - (i * 60.0), 1.0, 1.0).toColor(),
 );
 
-const List<double> _kHueStops = [
+const List<double> kHueStops = [
   0,
   1 / 6,
   2 / 6,
@@ -19,13 +18,8 @@ const List<double> _kHueStops = [
 ];
 
 final SweepGradient kHueSweepGradient = SweepGradient(
-  colors: _kHueColors,
-  stops: _kHueStops,
-);
-
-final LinearGradient kHueLinearGradient = LinearGradient(
-  colors: _kHueColors,
-  stops: _kHueStops,
+  colors: kHueColors,
+  stops: kHueStops,
 );
 
 final _shadowPaint = Paint()
@@ -49,7 +43,7 @@ void _drawHueKnob({
     ..style = PaintingStyle.stroke
     ..strokeWidth = knobStrokeWidth;
 
-  final angleRad = ((-1 * hue + 360) % 360) * pi / 180;
+  final angleRad = degToRad(((-1 * hue + 360) % 360));
   final knobPosition = Offset(
     center.dx + (radius - (holeThickness / 2)) * cos(angleRad),
     center.dy + (radius - (holeThickness / 2)) * sin(angleRad),
@@ -94,6 +88,52 @@ void _drawHueRing({
 
   canvas.drawCircle(center, holeRadius, holePaint);
   canvas.restore();
+}
+
+double radToDeg(double rad) => rad * (180 / pi);
+double degToRad(double deg) => deg * (pi / 180);
+
+void drawKnob({
+  required Canvas canvas,
+  required Color color,
+  required Offset position,
+}) {
+  const knobStrokeWidth = 5.0;
+  const knobSize = 23 - knobStrokeWidth;
+
+  final knobPaint = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = knobStrokeWidth;
+
+  canvas.drawCircle(
+    position,
+    knobSize / 2,
+    _shadowPaint..strokeWidth = knobStrokeWidth,
+  );
+  canvas.drawCircle(
+    position,
+    knobSize / 2,
+    Paint()
+      ..color = color.withAlpha(255)
+      ..style = PaintingStyle.fill,
+  );
+  canvas.drawCircle(position, knobSize / 2, knobPaint);
+}
+
+double computeHueFromPosition({
+  required Offset position,
+  required Offset center,
+}) {
+  final degrees = radToDeg(atan2(
+        position.dy - center.dy,
+        position.dx - center.dx,
+      ));
+  final degreesNorm = 360 -
+      ((degrees + 360) %
+          360);
+
+  return degreesNorm;
 }
 
 double getHueRingHoleThickness(double radius) => radius * 0.2;

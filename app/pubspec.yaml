@@ -71,32 +71,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/dummy_img_1.png
-    - assets/images/dummy_img_2.png
-    - assets/images/dummy_img_3.png
-    - assets/images/dummy_img_4.png
-    - assets/images/test_layer_bg.svg
-    - assets/images/hue_square_color_picker.png
-    - assets/images/hue_triangle_color_picker.png
-    - assets/images/spectrum_circle_color_picker.png
-    - assets/icons/search_m3.svg
-    - assets/icons/stylus_note_m3.svg
-    - assets/icons/home_outlined_m3.svg
-    - assets/icons/home_m3.svg
-    - assets/icons/explore_outlined_m3.svg
-    - assets/icons/explore_m3.svg
-    - assets/icons/select_check_box_m3.svg
-    - assets/icons/content_copy_m3.svg
-    - assets/icons/delete_m3.svg
-    - assets/icons/redo_m3.svg
-    - assets/icons/undo_m3.svg
-    - assets/icons/zoom_in_m3.svg
-    - assets/icons/zoom_out_m3.svg
-    - assets/icons/edit_m3.svg
-    - assets/icons/eraser_m3.svg
-    - assets/icons/colorize_m3.svg
-    - assets/icons/visibility_m3.svg
-    - assets/icons/visibility_off_m3.svg
+    - assets/images/
+    - assets/icons/
 
   shaders:
     - shaders/hue_triangle_shader.frag
