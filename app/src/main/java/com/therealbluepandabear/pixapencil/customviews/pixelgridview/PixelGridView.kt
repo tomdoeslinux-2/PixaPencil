@@ -35,6 +35,7 @@ import com.therealbluepandabear.pixapencil.listeners.CanvasFragmentListener
 import com.therealbluepandabear.pixapencil.models.Coordinates
 import com.therealbluepandabear.pixapencil.utility.compat.PaintCompat
 import com.therealbluepandabear.pixapencil.utility.constants.IntConstants
+import androidx.core.graphics.createBitmap
 
 class PixelGridView(context: Context, attributeSet: AttributeSet): View(context, attributeSet){
     lateinit var pixelGridViewBitmap: Bitmap
@@ -120,7 +121,7 @@ class PixelGridView(context: Context, attributeSet: AttributeSet): View(context,
             pixelGridViewBitmap.recycle()
         }
 
-        pixelGridViewBitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
+        pixelGridViewBitmap = createBitmap(bitmapWidth, bitmapHeight)
 
         if (existingBitmap != null) {
             pixelGridViewBitmap = existingBitmap!!.createMutableClone()

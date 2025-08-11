@@ -35,7 +35,6 @@ import com.therealbluepandabear.pixapencil.enums.BitmapCompressFormat
 import com.therealbluepandabear.pixapencil.enums.OutputCode
 import com.therealbluepandabear.pixapencil.extensions.activity
 import com.therealbluepandabear.pixapencil.utility.constants.IntConstants
-import com.tianscar.quickbitmap.BitmapEncoder
 import org.beyka.tiffbitmapfactory.CompressionScheme
 import org.beyka.tiffbitmapfactory.TiffSaver
 import org.beyka.tiffbitmapfactory.TiffSaver.SaveOptions
@@ -152,27 +151,7 @@ class FileHelperUtilities(private val context: Context) {
                 }
 
                 else -> {
-                    BitmapEncoder.encodeFile(file_, bitmap, true, BitmapEncoder.CompressFormat.BMP, IntConstants.COMPRESSION_QUALITY_MAX, object : BitmapEncoder.Callback {
-                        override fun onCreateFailure() {
-                            onTaskFinished(OutputCode.Failure, file_, context.getString(R.string.exception_failed_to_create_file))
-                        }
 
-                        override fun onCompressFailure() {
-                            onTaskFinished(OutputCode.Failure, file_, context.getString(R.string.exception_failed_to_compress_file))
-                        }
-
-                        override fun onFileExists(isDirectory: Boolean) {
-
-                        }
-
-                        override fun onIOException(e: IOException?) {
-                            onTaskFinished(OutputCode.Failure, file_, e?.message)
-                        }
-
-                        override fun onSuccess() {
-                            onTaskFinished(OutputCode.Success, file_, exceptionMessage)
-                        }
-                    })
                 }
             }
 
