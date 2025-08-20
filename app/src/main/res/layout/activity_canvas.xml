@@ -10,6 +10,7 @@
         android:id="@+id/activityCanvas_appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:theme="@style/ThemeOverlay.Material3.ActionBar"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,15 +26,15 @@
     </com.google.android.material.appbar.AppBarLayout>
     <!-- This view is here to ensure that when the user zooms in, there is no overlap -->
     <View
-        android:elevation="20dp"
-        android:outlineProvider="none"
         android:id="@+id/activityCanvas_topView"
         android:layout_width="0dp"
         android:layout_height="90dp"
         android:background="@color/fragment_background_color_daynight"
+        android:elevation="20dp"
+        android:outlineProvider="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/activityCanvas_appBarLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/activityCanvas_appBarLayout" />
 
     <!-- The ColorSwitcherView is a view I created which helps
          simplify the code for controlling the user's primary/secondary color -->

@@ -18,6 +18,7 @@
 
 package com.therealbluepandabear.pixapencil.activities.main.oncreate.root
 
+import androidx.core.view.WindowCompat
 import com.therealbluepandabear.pixapencil.activities.canvas.selectedColorPaletteIndex
 import com.therealbluepandabear.pixapencil.activities.main.*
 import com.therealbluepandabear.pixapencil.activities.main.eventlisteners.setEventListeners

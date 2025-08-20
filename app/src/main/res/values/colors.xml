@@ -16,4 +16,6 @@
     <color name="black_color_daynight">@color/black</color>
 
     <color name="spotlightBackground">#BF000000</color>
+
+    <color name="toolbar_icon_color">#0199cd</color>
 </resources>
