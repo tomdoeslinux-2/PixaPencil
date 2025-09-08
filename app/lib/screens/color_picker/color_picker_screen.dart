@@ -400,6 +400,7 @@ class _ColorPickerScreenState extends ConsumerState<ColorPickerScreen> {
             else if (_selectedSliderType == _SliderType.rgb)
               const RGBSliders(),
             Row(
+              spacing: 12,
               children: [
                 FilledButton(
                   onPressed: () {},
