@@ -56,6 +56,38 @@ void main() {
         final layerManager = LayerManager(layerGraph,
             enableDynamicLayerSwitchingOptimization: true);
         layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+        layerManager.addLayer(layerA);
+
         layerManager.activeLayerIndex = 0;
 
         benchmark(() {
