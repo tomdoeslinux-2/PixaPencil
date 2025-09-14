@@ -273,8 +273,6 @@ void main() {
               .length,
           equals(2));
       expect(bitmapsAreEqual(renderingEngine.render(), expectedOutput), isTrue);
-
-      await exportGraphToPNG(renderingEngine.rootNode, 'ok__');
     });
 
     test('cache works properly (for layer index of 1)', () async {

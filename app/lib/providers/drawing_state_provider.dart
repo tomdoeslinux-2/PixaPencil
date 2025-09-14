@@ -147,7 +147,7 @@ final drawingStateProvider =
 });
 
 final canvasControllerProvider = Provider<CanvasController>((ref) {
-  return CanvasController(width: 50, height: 50);
+  return CanvasController(width: 500, height: 500);
 });
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
