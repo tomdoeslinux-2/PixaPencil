@@ -79,7 +79,8 @@ class LayerManager {
         }
 
         if (!layer.isVisible) {
-          break;
+          layer.overNode!.isPassthrough = true;
+          continue;
         }
 
         if (isInputFromBottommostLayer && targetLayerNode != layer.overNode) {
@@ -100,7 +101,11 @@ class LayerManager {
             GBitmap.overlay(layer.rootNode.process(null), compositedAbove);
       }
 
-      saveBitmapToLocalDir(compositedAbove!, "composited_act_layer_index_${activeLayerIndex}_${layers[1].isVisible}.png");
+      if (layers.length >= 5) {
+        saveBitmapToLocalDir(compositedAbove!,
+            "composited_act_layer_index_${activeLayerIndex}_${layers[3]
+                .isVisible}.png");
+      }
 
       final target = isInputFromBottommostLayer
           ? targetLayerNode
@@ -247,6 +252,7 @@ class LayerManager {
 
   void toggleLayerVisibility(int layerIndex) {
     final layerToToggle = layers[layerIndex];
+    saveBitmapToLocalDir(layerToToggle.rootNode.process(null), "$layerIndex.png");
 
     layerToToggle.isVisible = !layerToToggle.isVisible;
 

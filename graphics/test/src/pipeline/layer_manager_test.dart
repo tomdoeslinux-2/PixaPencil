@@ -390,7 +390,7 @@ void main() {
       saveBitmapToLocalDir(renderingEngine.render(), "before.png");
 
       layerManager.activeLayerIndex = 0;
-      layerManager.toggleLayerVisibility(1);
+      layerManager.toggleLayerVisibility(2);
 
       saveBitmapToLocalDir(renderingEngine.render(), "after.png");
       await exportGraphToPNG(layerManager.renderingEngine.rootNode, "after_graph");
