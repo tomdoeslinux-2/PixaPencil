@@ -272,6 +272,8 @@ void main() {
               .where((node) => node.cache.size() > 0)
               .length,
           equals(2));
+
+      // check result
       expect(bitmapsAreEqual(renderingEngine.render(), expectedOutput), isTrue);
     });
 
@@ -345,6 +347,53 @@ void main() {
               .length,
           equals(1));
       expect(bitmapsAreEqual(renderingEngine.render(), expectedOutput), isTrue);
+    });
+  });
+
+  group("Layer operation tests", () {
+    late final SourceNode sky;
+    late final SourceNode grass;
+    late final SourceNode stickFigure;
+    late final SourceNode sun;
+    late final SourceNode clouds;
+
+    late final RenderingEngine renderingEngine;
+    late final LayerManager layerManager;
+
+    setUpAll(() async {
+      sky = SourceNode(
+          source: await loadBitmapFromImage('$testAssetPath/sky.png'));
+      grass = SourceNode(
+          source: await loadBitmapFromImage('$testAssetPath/grass.png'));
+      stickFigure = SourceNode(
+          source: await loadBitmapFromImage('$testAssetPath/stick_figure.png'));
+      sun = SourceNode(
+          source: await loadBitmapFromImage('$testAssetPath/sun.png'));
+      clouds = SourceNode(
+          source: await loadBitmapFromImage('$testAssetPath/clouds.png'));
+
+      renderingEngine = RenderingEngine(
+        sky,
+        outputRoi: sky.source.toRect(),
+      );
+
+      layerManager = LayerManager(renderingEngine,
+          enableDynamicLayerSwitchingOptimization: true);
+      layerManager.addLayer(grass);
+      layerManager.addLayer(stickFigure);
+      layerManager.addLayer(sun);
+      layerManager.addLayer(clouds);
+    });
+
+    test('hiding bottommost layer works as expected', () async {
+      await exportGraphToPNG(layerManager.renderingEngine.rootNode, "before_graph");
+      saveBitmapToLocalDir(renderingEngine.render(), "before.png");
+
+      layerManager.activeLayerIndex = 0;
+      layerManager.toggleLayerVisibility(1);
+
+      saveBitmapToLocalDir(renderingEngine.render(), "after.png");
+      await exportGraphToPNG(layerManager.renderingEngine.rootNode, "after_graph");
     });
   });
 }

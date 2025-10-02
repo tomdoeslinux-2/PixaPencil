@@ -78,6 +78,10 @@ class LayerManager {
           break;
         }
 
+        if (!layer.isVisible) {
+          break;
+        }
+
         if (isInputFromBottommostLayer && targetLayerNode != layer.overNode) {
           layer.overNode!.isPassthrough = true;
         }
@@ -95,6 +99,8 @@ class LayerManager {
         compositedAbove =
             GBitmap.overlay(layer.rootNode.process(null), compositedAbove);
       }
+
+      saveBitmapToLocalDir(compositedAbove!, "composited_act_layer_index_${activeLayerIndex}_${layers[1].isVisible}.png");
 
       final target = isInputFromBottommostLayer
           ? targetLayerNode
@@ -155,17 +161,6 @@ class LayerManager {
 
     for (final (_, node) in layerNodes.indexed) {
       final layer = LayerNodeReference(node, node.parentNode as OverlayNode);
-
-      if ((node.parentNode as OverlayNode).isAuxNodePassthrough &&
-          node.parentNode!.auxNode == node) {
-        layer.isVisible =
-            !(node.parentNode as OverlayNode).isAuxNodePassthrough;
-      } else if ((node.parentNode as OverlayNode).isInputNodePassthrough &&
-          node.parentNode!.inputNode == node) {
-        layer.isVisible =
-            !(node.parentNode as OverlayNode).isInputNodePassthrough;
-      }
-
       layers.insert(0, layer);
     }
   }
@@ -218,8 +213,6 @@ class LayerManager {
     _optimizeGraphForActiveLayer();
   }
 
-  // todo add toggle layer visibility
-
   void reorderLayer(int sourceIndex, int destinationIndex) {
     final layersToShift = layers
         .whereIndexed(
@@ -254,14 +247,9 @@ class LayerManager {
 
   void toggleLayerVisibility(int layerIndex) {
     final layerToToggle = layers[layerIndex];
-    final overNode = layerToToggle.overNode;
-
-    if (overNode!.inputNode == layerToToggle.rootNode) {
-      overNode.isInputNodePassthrough = !overNode.isInputNodePassthrough;
-    } else {
-      overNode.isAuxNodePassthrough = !overNode.isAuxNodePassthrough;
-    }
 
     layerToToggle.isVisible = !layerToToggle.isVisible;
+
+    _optimizeGraphForActiveLayer();
   }
 }

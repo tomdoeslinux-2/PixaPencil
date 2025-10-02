@@ -95,6 +95,8 @@ void main() {
         }, iterations: 800);
 
         expect(true, isTrue);
+
+        await saveBitmapToLocalDir(layerGraph.render(), "my_out.png");
       },
     );
   });

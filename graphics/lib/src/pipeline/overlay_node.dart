@@ -1,7 +1,4 @@
 import 'package:graphics/graphics.dart';
-import 'package:graphics/src/core/bitmap.dart';
-import 'package:graphics/src/core/rect.dart';
-import 'package:graphics/src/pipeline/node.dart';
 
 class Cache {
   final Map<String, GBitmap> _cache = {};
@@ -35,9 +32,6 @@ class OverlayNode extends Node {
   final _cache = Cache();
   Cache get cache => _cache;
 
-  var isInputNodePassthrough = false;
-  var isAuxNodePassthrough = false;
-
   OverlayNode({super.inputNode, super.auxNode});
 
   @override
@@ -49,13 +43,13 @@ class OverlayNode extends Node {
     GBitmap? backgroundBitmap;
     GBitmap? overlayBitmap;
 
-    if (!isInputNodePassthrough && inputNode != null) {
+    if (inputNode != null) {
       backgroundBitmap = _cache.has(kOverlayNodeCacheKeyBackground)
           ? _cache.retrieve(kOverlayNodeCacheKeyBackground)!
           : inputNode!.process(roi);
     }
 
-    if (!isAuxNodePassthrough && auxNode != null) {
+    if (auxNode != null) {
       overlayBitmap = _cache.has(kOverlayNodeCacheKeyOverlay)
           ? _cache.retrieve(kOverlayNodeCacheKeyOverlay)!
           : auxNode!.process(null);
