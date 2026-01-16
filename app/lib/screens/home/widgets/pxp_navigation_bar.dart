@@ -2,15 +2,20 @@ import '../../../widgets/svg_icon.dart';
 import 'package:flutter/material.dart';
 
 class PxpNavigationBar extends StatefulWidget {
-  const PxpNavigationBar({super.key});
+  final int selectedIndex;
+  final void Function(int index) onDestinationChanged;
+
+  const PxpNavigationBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onDestinationChanged,
+  });
 
   @override
   State<PxpNavigationBar> createState() => _PxpNavigationBarState();
 }
 
 class _PxpNavigationBarState extends State<PxpNavigationBar> {
-  int _selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -26,18 +31,21 @@ class _PxpNavigationBarState extends State<PxpNavigationBar> {
                 icon: const SvgIcon('assets/icons/home_outlined_m3.svg'),
                 selectedIcon: const SvgIcon('assets/icons/home_m3.svg'),
                 label: 'Home',
+                onTap: () => widget.onDestinationChanged(0),
               ),
               _buildNavBarItem(
                 index: 1,
                 icon: const Icon(Icons.folder_outlined),
                 selectedIcon: const Icon(Icons.folder),
                 label: 'Collections',
+                onTap: () => widget.onDestinationChanged(1),
               ),
               _buildNavBarItem(
                 index: 2,
                 icon: const SvgIcon('assets/icons/explore_outlined_m3.svg'),
                 selectedIcon: const SvgIcon('assets/icons/explore_m3.svg'),
                 label: 'Explore',
+                onTap: () => widget.onDestinationChanged(2),
               ),
             ],
           ),
@@ -51,10 +59,11 @@ class _PxpNavigationBarState extends State<PxpNavigationBar> {
     required Widget icon,
     required Widget selectedIcon,
     required String label,
+    required void Function() onTap,
   }) {
-    final isSelected = index == _selectedIndex;
+    final isSelected = index == widget.selectedIndex;
     final color =
-    isSelected ? const Color(0xFF6495ED) : const Color(0xFF797979);
+        isSelected ? const Color(0xFF6495ED) : const Color(0xFF797979);
 
     return Expanded(
       child: Tooltip(
@@ -65,11 +74,7 @@ class _PxpNavigationBarState extends State<PxpNavigationBar> {
           splashColor: const Color(0xFF6495ED).withValues(alpha: 0.2),
           highlightColor: const Color(0xFF6495ED).withValues(alpha: 0.03),
           radius: 30,
-          onTap: () {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
+          onTap: onTap,
           child: Container(
             height: double.infinity,
             alignment: Alignment.center,

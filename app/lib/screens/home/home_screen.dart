@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 
 import 'widgets/creations_grid.dart';
 import 'widgets/draw_fab.dart';
-import 'widgets/pxp_navigation_bar.dart';
 import '../../widgets/svg_icon.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -87,14 +86,13 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (ctx) => DrawingScreen(),
+                  builder: (ctx) => const DrawingScreen(),
                 ),
               );
             },
           );
         },
       ),
-      bottomNavigationBar: const PxpNavigationBar(),
       body: Container(
         color: const Color(0xFFF8F8F8),
         height: double.infinity,

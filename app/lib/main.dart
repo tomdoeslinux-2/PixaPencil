@@ -1,3 +1,4 @@
+import 'package:app/app_shell.dart';
 import 'package:app/screens/drawing/drawing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: DrawingScreen(),
+      home: const AppShell(),
     );
   }
 }
