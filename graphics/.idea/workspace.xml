@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c9387cf0-8535-473e-bc2f-33a945855d1a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../app/lib/screens/explore/explore_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/lib/screens/signup/signup_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../app/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/lib/app_shell.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app/lib/app_shell.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/lib/screens/drawing/drawing_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app/lib/screens/drawing/drawing_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/lib/screens/drawing/widgets/drawing_app_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app/lib/screens/drawing/widgets/drawing_app_bar.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/lib/screens/home/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app/lib/screens/home/home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../app/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../app/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/discord.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/graphics.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/graphics.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/graphics_core.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graphics.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../web.iml" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="91" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;tomdoeslinux-2&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/tomdoeslinux-2/PixaPencil.git&quot;,
+    &quot;accountId&quot;: &quot;97b15f59-b854-43e3-bb98-06d015ce7e22&quot;
+  }
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.0" />
+      <entry key="S30" value="1.0" />
+      <entry key="S60" value="1.0" />
+      <entry key="M2" value="1.0" />
+      <entry key="M5" value="1.0" />
+      <entry key="M10" value="1.0" />
+      <entry key="M15" value="1.0" />
+      <entry key="M30" value="1.0" />
+      <entry key="H1" value="1.0" />
+      <entry key="H2" value="1.0" />
+      <entry key="H4" value="1.0" />
+      <entry key="D1" value="1.0" />
+      <entry key="W1" value="1.0" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.15496346249237333" />
+      <entry key="MS500" value="0.6887250231915688" />
+      <entry key="S2" value="0.9109855024038431" />
+      <entry key="S5" value="0.9633954397298135" />
+      <entry key="S10" value="0.9815270957695531" />
+      <entry key="S30" value="0.9938040548065796" />
+      <entry key="S60" value="0.9968972137620706" />
+      <entry key="M2" value="0.9984474016001397" />
+      <entry key="M5" value="0.9993786711328704" />
+      <entry key="M10" value="0.9996892872952428" />
+      <entry key="M15" value="0.9997928474684152" />
+      <entry key="M30" value="0.9998964183696305" />
+      <entry key="H1" value="0.9999482078436015" />
+      <entry key="H2" value="0.9999741035864886" />
+      <entry key="H4" value="0.9999870517094153" />
+      <entry key="D1" value="0.9999978419399261" />
+      <entry key="W1" value="0.9999996917054186" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3ItAbTHZSTNVR6pcnqntEEwBGT2" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/tomo/IdeaProjects/PixaPencil/graphics",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "dart.settings",
+    "show.migrate.to.gradle.popup": "false",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.33813.55" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.33813.55" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c9387cf0-8535-473e-bc2f-33a945855d1a" name="Changes" comment="" />
+      <created>1788573564141</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1788573564141</updated>
+      <workItem from="1788575036151" duration="1247000" />
+      <workItem from="1790751519270" duration="738000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

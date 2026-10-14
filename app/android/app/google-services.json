@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "150777149126",
+    "project_id": "pixapencil-prod",
+    "storage_bucket": "pixapencil-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:150777149126:android:fc47e2169b3cf9ec85c9c7",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAe3xcLfsohcHSd2eZFlXYkLpbTUiyeAiI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

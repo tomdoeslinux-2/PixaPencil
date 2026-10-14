@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:app/app_shell.dart';
 import 'package:app/database/database.dart';
 import 'package:app/models/bitmap_extensions.dart';
 import 'package:app/providers/drawing_state_provider.dart';
@@ -70,7 +71,7 @@ class DrawingAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (ctx) => const HomeScreen(),
+                      builder: (ctx) => const AppShell(),
                     ),
                   );
                 },

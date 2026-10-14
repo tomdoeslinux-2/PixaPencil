@@ -62,21 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const SvgIcon('assets/icons/search_m3.svg'),
-          ),
-        ],
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        title: const Text('PixaPencil'),
-        toolbarHeight: 64,
-      ),
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: _showFAB,
         builder: (_, isVisible, ___) {

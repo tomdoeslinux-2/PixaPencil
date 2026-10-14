@@ -44,3 +44,5 @@ app.*.map.json
 
 # Generated Dart code
 *.g.dart
+
+lib/firebase_options.dart

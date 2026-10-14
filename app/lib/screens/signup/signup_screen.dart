@@ -12,36 +12,46 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Form(
-          key: _formKey,
-          child: Column(
-            spacing: 8,
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Email address',
-                ),
-                keyboardType: TextInputType.emailAddress,
-                autofillHints: const [AutofillHints.email],
-                validator: (value) {
-                  final v = value?.trim() ?? '';
-
-                  if (v.isEmpty) return 'Email is required';
-
-                  return RegExp(
-                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(value!)
-                      ? null
-                      : 'Invalid email';
-                },
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                spacing: 8,
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Email address',
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    autofillHints: const [AutofillHints.email],
+                    validator: (value) {
+                      final v = value?.trim() ?? '';
+        
+                      if (v.isEmpty) return 'Email is required';
+        
+                      return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                              .hasMatch(value!)
+                          ? null
+                          : 'Invalid email';
+                    },
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                    ),
+                    keyboardType: TextInputType.visiblePassword,
+                    autofillHints: const [AutofillHints.password],
+                  ),
+                  FilledButton(onPressed: () {}, child: const Text('Signup')),
+                ],
               ),
-              FilledButton(onPressed: () {}, child: Text(''))
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

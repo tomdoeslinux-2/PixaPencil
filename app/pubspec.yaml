@@ -44,6 +44,8 @@ dependencies:
   drift_flutter: ^0.2.4
   freezed_annotation: ^3.0.0
   collection: ^1.19.1
+  firebase_core: ^4.4.0
+  firebase_auth: ^6.1.4
 
 dev_dependencies:
   flutter_test:
